@@ -1,0 +1,122 @@
+create table if not exists user_roles (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+) STRICT;
+INSERT INTO user_roles (name)
+VALUES ('admin'), ('editor');
+CREATE TRIGGER IF NOT EXISTS prevent_user_roles_insert
+BEFORE INSERT ON user_roles
+BEGIN
+    SELECT RAISE(ABORT, 'INSERT prohibited: The user_roles table is read-only.');
+END;
+CREATE TRIGGER IF NOT EXISTS prevent_user_roles_update
+BEFORE UPDATE ON user_roles
+BEGIN
+    SELECT RAISE(ABORT, 'UPDATE prohibited: The user_roles table is read-only.');
+END;
+CREATE TRIGGER IF NOT EXISTS prevent_user_roles_delete
+BEFORE DELETE ON user_roles
+BEGIN
+    SELECT RAISE(ABORT, 'DELETE prohibited: The user_roles table is read-only.');
+END;
+
+create table if not exists users (
+    id BLOB PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    role_id INT NOT NULL REFERENCES user_roles(id),
+    last_login TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    deleted_at TEXT
+) STRICT;
+CREATE TRIGGER IF NOT EXISTS users_updated_at_trigger
+AFTER UPDATE ON users
+FOR EACH ROW
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE users SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+create table if not exists earners (
+    id BLOB PRIMARY KEY,
+    last_name TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    full_name TEXT AS (last_name || ' ' || first_name) STORED,
+    profile_url TEXT UNIQUE NOT NULL,
+    job_title TEXT NOT NULL,
+    company_name TEXT NOT NULL,
+    is_laureat INT NOT NULL DEFAULT 1 CHECK(is_laureat IN(0,1)),
+    created_by BLOB NOT NULL REFERENCES users(id),
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    deleted_at TEXT
+) STRICT;
+CREATE INDEX idx_earners_created_by ON earners(created_by);
+CREATE TRIGGER IF NOT EXISTS earners_updated_at_trigger
+AFTER UPDATE ON earners
+FOR EACH ROW
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE earners SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+create table if not exists certificates (
+    id BLOB PRIMARY KEY NOT NULL,
+    earner_id BLOB NOT NULL REFERENCES earners(id),
+    created_by BLOB NOT NULL REFERENCES users(id),
+    issued_at TEXT NOT NULL,
+    validity_years INTEGER NOT NULL DEFAULT 5 CHECK (validity_years > 0),
+    expiry_date TEXT AS (datetime(issued_at, '+' || validity_years || ' years')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    deleted_at TEXT
+) STRICT;
+CREATE TRIGGER IF NOT EXISTS certificates_updated_at_trigger
+AFTER UPDATE ON certificates
+FOR EACH ROW
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE certificates SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+create view if not exists certificates_with_status AS
+SELECT
+  *,
+  CASE
+    WHEN datetime(expiry_date) > datetime('now') THEN 'valide'
+    ELSE 'expiré'
+  END AS status
+FROM certificates
+WHERE deleted_at IS NULL;
+
+CREATE VIRTUAL TABLE IF NOT EXISTS earners_fts USING fts5(
+    earner_id UNINDEXED, -- The BLOB ID to join back to the earners table
+    first_name,
+    last_name,
+    job_title,
+    company_name,
+    -- Using the porter stemmer helps match variations of words
+    -- (e.g., searching "manage" matches "manager")
+    tokenize='porter'
+);
+CREATE TRIGGER IF NOT EXISTS earners_fts_insert
+AFTER INSERT ON earners
+BEGIN
+    INSERT INTO earners_fts (earner_id, first_name, last_name, job_title, company_name)
+    VALUES (NEW.id, NEW.first_name, NEW.last_name, NEW.job_title, NEW.company_name);
+END;
+CREATE TRIGGER IF NOT EXISTS earners_fts_update
+AFTER UPDATE ON earners
+BEGIN
+    DELETE FROM earners_fts WHERE earner_id = OLD.id;
+    INSERT INTO earners_fts (earner_id, first_name, last_name, job_title, company_name)
+    VALUES (NEW.id, NEW.first_name, NEW.last_name, NEW.job_title, NEW.company_name);
+END;
+CREATE TRIGGER IF NOT EXISTS earners_fts_delete
+AFTER DELETE ON earners
+BEGIN
+    DELETE FROM earners_fts WHERE earner_id = OLD.id;
+END;
