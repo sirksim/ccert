@@ -1,6 +1,7 @@
 type LayoutProps = {
   children: any;
-  styles?: strings[];
+  styles?: string[];
+  scripts?: string[];
 };
 export default function Layout(props: LayoutProps) {
   return (
@@ -13,6 +14,10 @@ export default function Layout(props: LayoutProps) {
         {props.styles &&
           props.styles.map((style) => (
             <link rel="stylesheet" href={`styles/${style}.css`} />
+          ))}
+        {props.scripts &&
+          props.scripts.map((script) => (
+            <script src={`scripts/${script}.js`} defer></script>
           ))}
       </head>
       <body>
@@ -29,10 +34,10 @@ export default function Layout(props: LayoutProps) {
                 <a href="/earners">Certifiers</a>
               </li>
               <li>
-                <a href="/users">Users</a>
+                <a href="/users">Utilisateur</a>
               </li>
               <li>
-                <a href="/notifications">Notifications</a>
+                <a href="/history">Historiques</a>
               </li>
             </nav>
             <div>

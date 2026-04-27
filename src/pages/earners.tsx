@@ -1,0 +1,96 @@
+export default function Earners({ earners }: { earners: any[] }) {
+  return (
+    <main>
+      <div className=".container">
+        <h1>Earners</h1>
+        {earners && (
+          <p>
+            {earners.length} earner{earners.length > 1 ? "s" : ""}
+          </p>
+        )}
+        <button command="show-modal" commandfor="addEarnerDialog">
+          Add New Earner
+        </button>
+        {earners && (
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>
+                    <input type="checkbox" name="selectAll" id="selectAll" />
+                  </th>
+                  <th>Avatar</th>
+                  <th>Name</th>
+                  <th>Job</th>
+                  <th>Company</th>
+                  <th>Laureat</th>
+                  <th>Certificate ID</th>
+                  <th>Certificate Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+        )}
+      </div>
+      <dialog id="addEarnerDialog">
+        <h2>Add New Earner</h2>
+        <form id="addEarnerForm">
+          <fieldset>
+            <legend>Earner Information</legend>
+            <div>
+              <label htmlFor="first_name">First Name</label>
+              <input type="text" id="first_name" name="first_name" required />
+            </div>
+            <div>
+              <label htmlFor="last_name">Last Name</label>
+              <input type="text" id="last_name" name="last_name" required />
+            </div>
+            <div>
+              <label htmlFor="profile_url">Profile URL</label>
+              <input type="url" id="profile_url" name="profile_url" required />
+            </div>
+            <div>
+              <label htmlFor="job_title">Job Title</label>
+              <input type="text" id="job_title" name="job_title" required />
+            </div>
+            <div>
+              <label htmlFor="company_name">Company Name</label>
+              <input
+                type="text"
+                id="company_name"
+                name="company_name"
+                required
+              />
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="is_laureat"
+                name="is_laureat"
+                value="1"
+              />
+              <label htmlFor="is_laureat">Is Laureate?</label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Certificate Details</legend>
+            <div>
+              <label htmlFor="issued_at">Issue Date</label>
+              <input type="date" id="issued_at" name="issued_at" required />
+            </div>
+            <div>
+              <label htmlFor="code">Code</label>
+              <input type="text" id="code" name="code" required />
+            </div>
+          </fieldset>
+          <button type="submit">Add Earner</button>
+          <button type="button" command="close" commandfor="addEarnerDialog">
+            Cancel
+          </button>
+        </form>
+      </dialog>
+    </main>
+  );
+}

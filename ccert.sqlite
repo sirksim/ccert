@@ -1,9 +1,9 @@
-create table if not exists user_roles (
+CREATE TABLE IF NOT EXISTS user_roles (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL
 ) STRICT;
 INSERT INTO user_roles (name)
-VALUES ('admin'), ('editor');
+VALUES ('Admin'), ('Editor');
 CREATE TRIGGER IF NOT EXISTS prevent_user_roles_insert
 BEFORE INSERT ON user_roles
 BEGIN
@@ -20,7 +20,7 @@ BEGIN
     SELECT RAISE(ABORT, 'DELETE prohibited: The user_roles table is read-only.');
 END;
 
-create table if not exists users (
+CREATE TABLE IF NOT EXISTS users (
     id BLOB PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -40,7 +40,7 @@ BEGIN
     UPDATE users SET updated_at = datetime('now') WHERE id = NEW.id;
 END;
 
-create table if not exists earners (
+CREATE TABLE IF NOT EXISTS earners (
     id BLOB PRIMARY KEY,
     last_name TEXT NOT NULL,
     first_name TEXT NOT NULL,
@@ -48,7 +48,7 @@ create table if not exists earners (
     profile_url TEXT UNIQUE NOT NULL,
     job_title TEXT NOT NULL,
     company_name TEXT NOT NULL,
-    is_laureat INT NOT NULL DEFAULT 1 CHECK(is_laureat IN(0,1)),
+    is_laureat INT NOT NULL DEFAULT 0 CHECK(is_laureat IN(0,1)),
     created_by BLOB NOT NULL REFERENCES users(id),
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now')),
@@ -63,8 +63,9 @@ BEGIN
     UPDATE earners SET updated_at = datetime('now') WHERE id = NEW.id;
 END;
 
-create table if not exists certificates (
+CREATE TABLE IF NOT EXISTS certificates (
     id BLOB PRIMARY KEY NOT NULL,
+    code TEXT NOT NULL UNIQUE,
     earner_id BLOB NOT NULL REFERENCES earners(id),
     created_by BLOB NOT NULL REFERENCES users(id),
     issued_at TEXT NOT NULL,
@@ -82,7 +83,7 @@ BEGIN
     UPDATE certificates SET updated_at = datetime('now') WHERE id = NEW.id;
 END;
 
-create view if not exists certificates_with_status AS
+CREATE VIEW IF NOT EXISTS certificates_with_status AS
 SELECT
   *,
   CASE
@@ -93,13 +94,11 @@ FROM certificates
 WHERE deleted_at IS NULL;
 
 CREATE VIRTUAL TABLE IF NOT EXISTS earners_fts USING fts5(
-    earner_id UNINDEXED, -- The BLOB ID to join back to the earners table
+    earner_id UNINDEXED,
     first_name,
     last_name,
     job_title,
     company_name,
-    -- Using the porter stemmer helps match variations of words
-    -- (e.g., searching "manage" matches "manager")
     tokenize='porter'
 );
 CREATE TRIGGER IF NOT EXISTS earners_fts_insert
