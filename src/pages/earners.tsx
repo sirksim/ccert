@@ -1,4 +1,6 @@
-export default function Earners({ earners }: { earners: any[] }) {
+import type { Earner } from "@databases/types";
+
+export default function Earners({ earners }: { earners: Earner[] }) {
   return (
     <main>
       <div className=".container">

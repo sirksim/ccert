@@ -25,6 +25,7 @@
 h1,
 h2,
 h3,
+p,
 body {
     margin: 0;
 }
@@ -57,5 +58,13 @@ form div {
     &:has(input:required) label::after {
         content: "*";
         color: var(--danger);
+    }
+
+    p {
+        color: var(--danger);
+        font-style: italic;
+        font-weight: bold;
+        font-size: 0.75rem;
+        letter-spacing: 0.1rem;
     }
 }

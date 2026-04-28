@@ -41,8 +41,8 @@ export default function Layout(props: LayoutProps) {
               </li>
             </nav>
             <div>
+              <a href="/login">Login</a>
               <a href="/profile">View Profile</a>
-              <br />
               <button type="button">Logout</button>
             </div>
           </div>

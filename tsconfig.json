@@ -28,6 +28,7 @@
     "noPropertyAccessFromIndexSignature": false,
     "paths": {
       "@pages/*": ["./src/pages/*"],
+      "@schema/*": ["./schema/*"],
       "@components/*": ["./src/components/*"],
       "@databases/*": ["./src/db/*"],
     },

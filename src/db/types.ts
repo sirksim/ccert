@@ -19,6 +19,7 @@ export type User = {
   password_hash: string;
   last_name: string;
   first_name: string;
+  full_name: string;
   role_id: UserRoleID;
   last_login: string | null;
   created_at: string;

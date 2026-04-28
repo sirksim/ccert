@@ -8,14 +8,21 @@ import Layout from "@components/layout.tsx";
 import { db } from "@databases/index";
 import { zValidator } from "@hono/zod-validator";
 import { earnerFormSchema } from "../schema/earners";
-import { generateId } from "@databases/utils";
-import type { CertificateID, EarnerID, UserID } from "@databases/types";
+import type { UserID } from "@databases/types";
+import Login from "@pages/login";
+import { loginSchema } from "@schema/login";
+import Reset from "@pages/reset";
+import History from "@pages/history";
+import Users from "@pages/users";
+import { addUserSchema } from "@schema/users";
+import { SQL } from "bun";
+import { deleteCookie, setCookie } from "hono/cookie";
 
 declare module "hono" {
   interface ContextRenderer {
     (
       content: string | Promise<string>,
-      props: {
+      props?: {
         styles?: string[];
         scripts?: string[];
       },
@@ -47,6 +54,11 @@ app.use(
 
 app
   .get("/", (c) => {
+    const flash = deleteCookie(c, "flash", {
+      secure: true,
+      httpOnly: true,
+    });
+    console.log(flash);
     return c.render(<Dashboard></Dashboard>, {
       styles: ["dashboard"],
     });
@@ -57,6 +69,81 @@ app
       styles: ["earners"],
       scripts: ["earners"],
     });
+  })
+  .get("/login", (c) => {
+    return c.render(<Login></Login>, {
+      scripts: ["login"],
+    });
+  })
+  .get("/users", (c) => {
+    const users = db.users.getAll();
+    return c.render(<Users users={users}></Users>, {
+      scripts: ["users"],
+    });
+  })
+  .get("/history", (c) => {
+    return c.render(<History></History>);
+  })
+  .get("/reset", (c) => {
+    return c.render(<Reset></Reset>);
+  })
+  .post("api/v1/login", zValidator("form", loginSchema), async (c) => {
+    const validated = c.req.valid("form");
+    const email = validated.email;
+
+    const user = db.users.getByEmail(email);
+    if (user === null) {
+      return c.json({ success: false, error: "Invalid credentials" });
+    }
+    const match = await Bun.password.verify(
+      validated.password,
+      user.password_hash,
+    );
+    if (!match) {
+      return c.json({ success: false, error: "Invalid crendentials" });
+    }
+    setCookie(c, "session", user.id.toBase64(), {
+      secure: true,
+      httpOnly: true,
+    });
+    setCookie(c, "flash", `Welcome ${user.full_name}`, {
+      secure: true,
+      httpOnly: true,
+    });
+    db.users.updateLastLogin(user);
+    return c.json({ success: true });
+  })
+  .post("/api/v1/users", zValidator("form", addUserSchema), async (c) => {
+    const validated = c.req.valid("form");
+    const user = db.users.getByEmail(validated.email);
+    if (user !== null) {
+      return c.json({
+        success: false,
+        error: {
+          message: "UNIQUE constraint failed: users.email",
+        },
+      });
+    }
+    const password_hash = await Bun.password.hash(validated.password, {
+      algorithm: "bcrypt",
+      cost: 15,
+    });
+    try {
+      const user = db.users.insert({ ...validated, password_hash });
+      return c.json(user);
+    } catch (err) {
+      if (err instanceof Error && err.name === "SQLiteError") {
+        return c.json({
+          success: false,
+          error: {
+            ...err,
+            message: err.message,
+          },
+        });
+      }
+      console.log(err);
+      return c.json(err);
+    }
   })
   .post("/api/v1/earners", zValidator("form", earnerFormSchema), (c) => {
     const validated = c.req.valid("form");
@@ -80,7 +167,7 @@ app
         issued_at: validated.issued_at,
       });
     });
-    return c.json(validated);
+    return c.json({ earner });
   });
 
 export default app;
