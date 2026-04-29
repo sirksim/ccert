@@ -94,6 +94,42 @@ SELECT
 FROM certificates
 WHERE deleted_at IS NULL;
 
+CREATE VIEW IF NOT EXISTS earners_with_certificates AS
+SELECT
+    e.id AS earner_id,
+    e.first_name,
+    e.last_name,
+    e.full_name,
+    e.profile_url,
+    e.job_title,
+    e.company_name,
+    e.is_laureat,
+    e.created_at AS earner_created_at,
+    c.id AS certificate_id,
+    c.code AS certificate_code,
+    c.issued_at,
+    c.validity_years,
+    c.expiry_date,
+    c.status AS certificate_status
+FROM earners e
+LEFT JOIN certificates_with_status c ON e.id = c.earner_id
+WHERE e.deleted_at IS NULL;
+
+CREATE VIEW IF NOT EXISTS users_with_roles AS
+SELECT
+    u.id AS user_id,
+    u.email,
+    u.first_name,
+    u.last_name,
+    u.role_id,
+    ur.name AS role_name,
+    u.last_login,
+    u.created_at,
+    u.updated_at
+FROM users u
+INNER JOIN user_roles ur ON u.role_id = ur.id
+WHERE u.deleted_at IS NULL;
+
 CREATE VIRTUAL TABLE IF NOT EXISTS earners_fts USING fts5(
     earner_id UNINDEXED,
     first_name,

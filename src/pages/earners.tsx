@@ -1,6 +1,10 @@
-import type { Earner } from "@databases/types";
+import type { EarnerWithCertificate } from "@databases/types";
 
-export default function Earners({ earners }: { earners: Earner[] }) {
+export default function Earners({
+  earners,
+}: {
+  earners: EarnerWithCertificate[];
+}) {
   return (
     <main>
       <div className=".container">
@@ -26,11 +30,34 @@ export default function Earners({ earners }: { earners: Earner[] }) {
                   <th>Job</th>
                   <th>Company</th>
                   <th>Laureat</th>
-                  <th>Certificate ID</th>
-                  <th>Certificate Status</th>
+                  <th>Code</th>
+                  <th>Status</th>
+                  <th>Issued At</th>
+                  <th>Expiry Date</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody>
+                {earners.map((earner) => (
+                  <tr>
+                    <td>
+                      <input type="checkbox" name="selectOne" />
+                    </td>
+                    <td>{earner.profile_url}</td>
+                    <td>{earner.full_name}</td>
+                    <td>{earner.job_title}</td>
+                    <td>{earner.company_name}</td>
+                    <td>{earner.is_laureat}</td>
+                    <td>{earner.certificate_code}</td>
+                    <td>{earner.certificate_status}</td>
+                    <td>{earner.issued_at}</td>
+                    <td>{earner.expiry_date}</td>
+                    <td>
+                      <button>...</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
               <tfoot></tfoot>
             </table>
           </div>

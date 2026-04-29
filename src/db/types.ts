@@ -89,7 +89,7 @@ export type InsertEarnerDTO = {
   profile_url: string;
   job_title: string;
   company_name: string;
-  is_laureat?: 0 | 1;
+  is_laureat: 0 | 1;
   created_by: UserID;
 };
 
@@ -99,4 +99,34 @@ export type InsertCertificateDTO = {
   created_by: UserID;
   issued_at: string;
   validity_years?: number;
+};
+
+export type EarnerWithCertificate = {
+  earner_id: EarnerID;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  profile_url: string;
+  job_title: string;
+  company_name: string;
+  is_laureat: 0 | 1;
+  earner_created_at: string;
+  certificate_id: CertificateID | null; // Nullable due to LEFT JOIN
+  certificate_code: string | null;
+  issued_at: string | null;
+  validity_years: number | null;
+  expiry_date: string | null;
+  certificate_status: "valide" | "expiré" | null;
+};
+
+export type UserWithRole = {
+  user_id: UserID;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role_id: number;
+  role_name: string;
+  last_login: string | null;
+  created_at: string;
+  updated_at: string;
 };

@@ -4,6 +4,7 @@ import type {
   Certificate,
   Earner,
   EarnerID,
+  EarnerWithCertificate,
   InsertCertificateDTO,
   InsertEarnerDTO,
   InsertUserDTO,
@@ -11,21 +12,31 @@ import type {
   UserID,
 } from "./types";
 import { generateId } from "./utils";
-import { use } from "hono/jsx";
 
 const connection = new Database("ccert.db");
 export const db = {
   earners: {
     getAll: (): Earner[] => {
       return connection
-        .query("SELECT * FROM earners WHERE deleted_at IS NULL")
-        .all() as Earner[];
+        .query<Earner, []>("SELECT * FROM earners WHERE deleted_at IS NULL")
+        .all();
+    },
+    getAllWithCert: (): EarnerWithCertificate[] => {
+      return connection
+        .query<
+          EarnerWithCertificate,
+          []
+        >("SELECT * FROM earners_with_certificates")
+        .all();
     },
     insert: (data: InsertEarnerDTO): Earner => {
-      const stmt = connection.prepare(
+      const stmt = connection.prepare<
+        Earner,
+        SQLQueryBindings | SQLQueryBindings[]
+      >(
         `
-        INSERT INTO earners(id,last_name,first_name,profile_url,job_title,created_by)
-        VALUES($id,$last_name,$first_name,$profile_url,$job_title,$created_by)
+        INSERT INTO earners(id,is_laureat,company_name,last_name,first_name,profile_url,job_title,created_by)
+        VALUES($id,$last_name,$is_laureat,$company_name,$first_name,$profile_url,$job_title,$created_by)
         RETURNING *
         `,
         {
@@ -35,11 +46,11 @@ export const db = {
           $profile_url: data.profile_url,
           $job_title: data.job_title,
           $created_by: data.created_by,
+          $company_name: data.company_name,
+          $is_laureat: data.is_laureat || 0,
         },
       );
-      console.log(stmt.toString());
-      const earner: Earner = {};
-      return earner;
+      return stmt.get()!;
     },
   },
   users: {
@@ -50,10 +61,7 @@ export const db = {
       );
     },
     getAll: (): User[] => {
-      const stmt = connection.prepare<
-        User,
-        SQLQueryBindings | SQLQueryBindings[]
-      >(`SELECT * FROM users`);
+      const stmt = connection.prepare<User, []>(`SELECT * FROM users`);
       return stmt.all();
     },
     getByEmail: (email: string): User | null => {
@@ -93,7 +101,10 @@ export const db = {
   },
   certificate: {
     insert: (data: InsertCertificateDTO): Certificate => {
-      const query = connection.prepare(
+      const stmt = connection.prepare<
+        Certificate,
+        SQLQueryBindings | SQLQueryBindings[]
+      >(
         `
         INSERT INTO certificates(id,code,earner_id,created_by,issued_at)
         VALUES($id,$code,$earner_id,$created_by,$issued_at)
@@ -107,10 +118,7 @@ export const db = {
           $issued_at: data.issued_at,
         },
       );
-      console.log(query.toString());
-      const cert: Certificate = {};
-
-      return cert;
+      return stmt.get()!;
     },
   },
   transaction: <T>(callback: () => T): T => {
