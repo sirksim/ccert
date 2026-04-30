@@ -7,18 +7,22 @@ export default function Earners({
 }) {
   return (
     <main>
-      <div className=".container">
-        <h1>Earners</h1>
-        {earners && (
-          <p>
-            {earners.length} earner{earners.length > 1 ? "s" : ""}
-          </p>
-        )}
-        <button command="show-modal" commandfor="addEarnerDialog">
-          Add New Earner
-        </button>
-        {earners && (
+      <div className="container">
+        <header>
           <div>
+            <h1>Earners</h1>
+            {earners && (
+              <p>
+                {earners.length} earner{earners.length > 1 ? "s" : ""}
+              </p>
+            )}
+          </div>
+          <button command="show-modal" commandfor="addEarnerDialog">
+            Add New Earner
+          </button>
+        </header>
+        {earners && (
+          <div className="table-wrapper">
             <table>
               <thead>
                 <tr>

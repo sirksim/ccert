@@ -4,15 +4,19 @@ export default function Users({ users }: { users: User[] }) {
   return (
     <main>
       <div className="container">
-        <h1>Users</h1>
-        {users && (
-          <p>
-            {users.length} users{users.length > 1 ? "s" : ""}
-          </p>
-        )}
-        <button command="show-modal" commandfor="addUserDialog">
-          Add New User
-        </button>
+        <header>
+          <div>
+            <h1>Users</h1>
+            {users && (
+              <p>
+                {users.length} users{users.length > 1 ? "s" : ""}
+              </p>
+            )}
+          </div>
+          <button command="show-modal" commandfor="addUserDialog">
+            Add New User
+          </button>
+        </header>
         {users && (
           <div class="table-wrapper">
             <table>
@@ -23,8 +27,10 @@ export default function Users({ users }: { users: User[] }) {
                   </th>
                   <th>First Name</th>
                   <th>Last Name</th>
+                  <th>Email</th>
                   <th>Role</th>
                   <th>Last Login</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -35,8 +41,18 @@ export default function Users({ users }: { users: User[] }) {
                     </td>
                     <td>{user.first_name}</td>
                     <td>{user.last_name}</td>
+                    <td>{user.email}</td>
                     <td>{user.role_id}</td>
                     <td>{user.last_login || "N/A"}</td>
+                    <td>
+                      <button
+                        data-id={user.id.toBase64()}
+                        className="showActionPopoverBtn"
+                        popovertarget="showActionPopover"
+                      >
+                        ...
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -44,6 +60,10 @@ export default function Users({ users }: { users: User[] }) {
             </table>
           </div>
         )}
+      </div>
+      <div id="showActionPopover" popover="auto">
+        <button id="editUserBtn">Edit</button>
+        <button>Delete</button>
       </div>
       <dialog id="addUserDialog">
         <h2>Add User</h2>

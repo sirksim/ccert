@@ -15,6 +15,7 @@ export default function Layout(props: LayoutProps) {
           props.styles.map((style) => (
             <link rel="stylesheet" href={`styles/${style}.css`} />
           ))}
+        <script src="/scripts/layout.js" defer></script>
         {props.scripts &&
           props.scripts.map((script) => (
             <script src={`scripts/${script}.js`} defer></script>

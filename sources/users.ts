@@ -33,3 +33,22 @@ addUserForm.addEventListener("submit", async (e) => {
     submitBtn.disabled = false;
   }
 });
+
+let userID = "";
+const showActionPopoverBtns = document.querySelectorAll<HTMLButtonElement>(
+  "button.showActionPopoverBtn",
+);
+showActionPopoverBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const value = btn.dataset["id"];
+    if (value === undefined) return;
+    userID = value;
+  });
+});
+
+const editUserBtn = document.getElementById("editUserBtn") as HTMLButtonElement;
+editUserBtn.addEventListener("click", async () => {
+  const resp = await fetch(`http://localhost:3000/api/v1/form?id=${userID}`);
+  const data = await resp.json();
+  console.log(data);
+});

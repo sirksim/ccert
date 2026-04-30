@@ -1,4 +1,5 @@
 import type { CertificateID, EarnerID, UserID } from "@databases/types";
+import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 
 const uuidBufferSchema = z
@@ -14,10 +15,9 @@ export const insertEarnerSchema = z.object({
   profile_url: z.url("Must be a valid URL"),
   job_title: z.string().min(2, "Job title is required"),
   company_name: z.string().min(2, "Company name is required"),
-  is_laureat: z.coerce
-    .number()
-    .pipe(z.union([z.literal(0), z.literal(1)]))
-    .transform((val) => (val === 1 ? (1 as const) : undefined))
+  is_laureat: z
+    .literal("1")
+    .transform((x) => (x === undefined ? 1 : 0))
     .optional(),
   created_by: uuidBufferSchema.transform((val) => val as UserID),
   cert_id: uuidBufferSchema.transform((val) => val as CertificateID),
@@ -30,5 +30,14 @@ export const earnerFormSchema = insertEarnerSchema.omit({
   cert_id: true,
   created_by: true,
 });
+export const earnerValidation = zValidator(
+  "form",
+  earnerFormSchema,
+  (result, c) => {
+    if (!result.success) {
+      return c.json({ success: result.success, error: result.error });
+    }
+  },
+);
 
 export type EarnerFormInput = z.infer<typeof earnerFormSchema>;

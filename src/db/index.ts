@@ -35,7 +35,7 @@ export const db = {
         SQLQueryBindings | SQLQueryBindings[]
       >(
         `
-        INSERT INTO earners(id,is_laureat,company_name,last_name,first_name,profile_url,job_title,created_by)
+        INSERT INTO earners(id,last_name,is_laureat,company_name,first_name,profile_url,job_title,created_by)
         VALUES($id,$last_name,$is_laureat,$company_name,$first_name,$profile_url,$job_title,$created_by)
         RETURNING *
         `,
@@ -47,7 +47,7 @@ export const db = {
           $job_title: data.job_title,
           $created_by: data.created_by,
           $company_name: data.company_name,
-          $is_laureat: data.is_laureat || 0,
+          $is_laureat: data.is_laureat,
         },
       );
       return stmt.get()!;
@@ -63,6 +63,13 @@ export const db = {
     getAll: (): User[] => {
       const stmt = connection.prepare<User, []>(`SELECT * FROM users`);
       return stmt.all();
+    },
+    getByID: (id: UserID): User | null => {
+      const stmt = connection.prepare<
+        User,
+        SQLQueryBindings | SQLQueryBindings[]
+      >(`SELECT * FROM users WHERE id = ?`);
+      return stmt.get(id);
     },
     getByEmail: (email: string): User | null => {
       const stmt = connection.prepare<

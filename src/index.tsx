@@ -15,9 +15,10 @@ import Reset from "@pages/reset";
 import History from "@pages/history";
 import Users from "@pages/users";
 import { addUserSchema } from "@schema/users";
-import { SQL } from "bun";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import { validateLocaleAndSetLanguage } from "typescript";
+import Profile from "@pages/profile";
+import type { SQL } from "bun";
+import EditUser from "@components/editUser";
 
 declare module "hono" {
   interface ContextRenderer {
@@ -64,6 +65,9 @@ app
       styles: ["dashboard"],
     });
   })
+  .get("/profile", (c) => {
+    return c.render(<Profile></Profile>);
+  })
   .get("/earners", (c) => {
     const earners = db.earners.getAllWithCert();
     return c.render(<Earners earners={earners}></Earners>, {
@@ -87,6 +91,11 @@ app
   })
   .get("/reset", (c) => {
     return c.render(<Reset></Reset>);
+  })
+  .get("/api/v1/form", (c) => {
+    const id = Uint8Array.fromBase64(c.req.query("id")!);
+    const user = db.users.getByID(id as UserID);
+    return c.render(<EditUser></EditUser>);
   })
   .post("api/v1/login", zValidator("form", loginSchema), async (c) => {
     const validated = c.req.valid("form");
@@ -132,53 +141,71 @@ app
     try {
       const user = db.users.insert({ ...validated, password_hash });
       return c.json(user);
-    } catch (err) {
-      if (err instanceof Error && err.name === "SQLiteError") {
+    } catch (e) {
+      if (e instanceof Error && e.name === "SQLiteError") {
         return c.json({
           success: false,
           error: {
-            ...err,
-            message: err.message,
+            ...e,
+            message: e.message,
           },
         });
       }
-      console.log(err);
-      return c.json(err);
+      console.log(e);
+      return c.json(e);
     }
   })
   .post("/api/v1/earners", zValidator("form", earnerFormSchema), (c) => {
     const validated = c.req.valid("form");
-    console.log(validated);
     let earner = {} as Earner,
       cert = {} as Certificate;
-    db.transaction(() => {
-      const session = getCookie(c, "session");
-      if (session === undefined) {
-        return c.json({ success: false });
-      }
-      const created_by = Uint8Array.fromBase64(session) as UserID;
-      earner = db.earners.insert({
-        company_name: validated.company_name,
-        first_name: validated.first_name,
-        job_title: validated.job_title,
-        last_name: validated.last_name,
-        profile_url: validated.profile_url,
-        is_laureat: validated.is_laureat || 0,
-        created_by,
-      });
+    try {
+      db.transaction(() => {
+        const session = getCookie(c, "session");
+        if (session === undefined) {
+          return c.json({ success: false });
+        }
+        const created_by = Uint8Array.fromBase64(session) as UserID;
+        earner = db.earners.insert({
+          company_name: validated.company_name,
+          first_name: validated.first_name,
+          job_title: validated.job_title,
+          last_name: validated.last_name,
+          profile_url: validated.profile_url,
+          is_laureat: validated.is_laureat || 0,
+          created_by,
+        });
 
-      cert = db.certificate.insert({
-        earner_id: earner.id,
-        code: validated.code,
-        issued_at: validated.issued_at,
-        created_by,
+        cert = db.certificate.insert({
+          earner_id: earner.id,
+          code: validated.code,
+          issued_at: validated.issued_at,
+          created_by,
+        });
       });
-    });
-    setCookie(c, "flash", `Added ${earner.full_name} with code ${cert.code}`, {
-      secure: true,
-      httpOnly: true,
-    });
-    return c.json({ success: true });
+      setCookie(
+        c,
+        "flash",
+        `Added ${earner.full_name} with code ${cert.code}`,
+        {
+          secure: true,
+          httpOnly: true,
+        },
+      );
+      return c.json({ success: true });
+    } catch (e) {
+      if (e instanceof Error && e.name === "SQLiteError") {
+        const error = e as SQL.SQLiteError;
+        switch (error.code) {
+          case "SQLITE_CONSTRAINT_DATATYPE":
+            console.log(e.message);
+            return c.json({ success: false }, 500);
+          default:
+            return c.json({ success: false });
+        }
+      }
+      return c.json({ success: false, e });
+    }
   });
 
 export default app;
