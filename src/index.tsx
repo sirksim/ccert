@@ -8,7 +8,7 @@ import Layout from "@components/layout.tsx";
 import { db } from "@databases/index";
 import { zValidator } from "@hono/zod-validator";
 import { earnerFormSchema } from "../schema/earners";
-import type { Certificate, Earner, UserID } from "@databases/types";
+import type { Certificate, Earner, EarnerID, UserID } from "@databases/types";
 import Login from "@pages/login";
 import { loginSchema } from "@schema/login";
 import Reset from "@pages/reset";
@@ -19,6 +19,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import Profile from "@pages/profile";
 import type { SQL } from "bun";
 import EditUser from "@components/editUser";
+import EditEarner from "@components/editEarner";
 
 declare module "hono" {
   interface ContextRenderer {
@@ -92,10 +93,21 @@ app
   .get("/reset", (c) => {
     return c.render(<Reset></Reset>);
   })
-  .get("/api/v1/form", (c) => {
+  .get("/api/v1/edit/user", (c) => {
     const id = Uint8Array.fromBase64(c.req.query("id")!);
     const user = db.users.getByID(id as UserID);
-    return c.render(<EditUser></EditUser>);
+    if (user === null) {
+      return c.json({ success: false, error: "Server Error" }, 500);
+    }
+    return c.html(<EditUser user={user}></EditUser>);
+  })
+  .get("/api/v1/edit/earner", (c) => {
+    const id = Uint8Array.fromBase64(c.req.query("id")!);
+    const earner = db.earners.getByID(id as EarnerID);
+    if (earner === null) {
+      return c.json({ success: false, error: "Server Error" }, 500);
+    }
+    return c.html(<EditEarner earner={earner}></EditEarner>);
   })
   .post("api/v1/login", zValidator("form", loginSchema), async (c) => {
     const validated = c.req.valid("form");

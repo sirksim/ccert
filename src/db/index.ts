@@ -10,6 +10,7 @@ import type {
   InsertUserDTO,
   User,
   UserID,
+  UserWithRole,
 } from "./types";
 import { generateId } from "./utils";
 
@@ -20,6 +21,13 @@ export const db = {
       return connection
         .query<Earner, []>("SELECT * FROM earners WHERE deleted_at IS NULL")
         .all();
+    },
+    getByID: (id: EarnerID): EarnerWithCertificate | null => {
+      const stmt = connection.prepare<
+        EarnerWithCertificate,
+        SQLQueryBindings | SQLQueryBindings[]
+      >(`SELECT * FROM earners_with_certificates WHERE earner_id = ?`);
+      return stmt.get(id);
     },
     getAllWithCert: (): EarnerWithCertificate[] => {
       return connection
@@ -64,11 +72,11 @@ export const db = {
       const stmt = connection.prepare<User, []>(`SELECT * FROM users`);
       return stmt.all();
     },
-    getByID: (id: UserID): User | null => {
+    getByID: (id: UserID): UserWithRole | null => {
       const stmt = connection.prepare<
-        User,
+        UserWithRole,
         SQLQueryBindings | SQLQueryBindings[]
-      >(`SELECT * FROM users WHERE id = ?`);
+      >(`SELECT * FROM users_with_roles WHERE user_id = ?`);
       return stmt.get(id);
     },
     getByEmail: (email: string): User | null => {

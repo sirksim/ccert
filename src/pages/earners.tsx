@@ -57,7 +57,13 @@ export default function Earners({
                     <td>{earner.issued_at}</td>
                     <td>{earner.expiry_date}</td>
                     <td>
-                      <button>...</button>
+                      <button
+                        data-id={earner.earner_id.toBase64()}
+                        className="showActionPopoverBtn"
+                        popovertarget="showActionPopover"
+                      >
+                        ...
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -66,6 +72,10 @@ export default function Earners({
             </table>
           </div>
         )}
+      </div>
+      <div id="showActionPopover" popover="auto">
+        <button id="editEarnerBtn">Edit</button>
+        <button>Delete</button>
       </div>
       <dialog id="addEarnerDialog">
         <h2>Add New Earner</h2>

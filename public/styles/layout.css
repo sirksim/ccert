@@ -63,6 +63,7 @@ main .container {
 
     table {
         width: 100%;
+        text-wrap: nowrap;
     }
 }
 
