@@ -1,89 +1,167 @@
 @font-face {
-    font-family: "Nunito";
-    src: url("/fonts/Nunito-VariableFont_wght.ttf");
-    font-weight: 200 1000;
-    font-style: normal;
-    font-display: swap;
+  font-family: "Nunito";
+  src: url("/fonts/Nunito-VariableFont_wght.ttf");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
 }
 @font-face {
-    font-family: "Nunito";
-    src: url("/fonts/Nunito-Italic-VariableFont_wght.ttf");
-    font-weight: 200 1000;
-    font-style: italic;
-    font-display: swap;
+  font-family: "Nunito";
+  src: url("/fonts/Nunito-Italic-VariableFont_wght.ttf");
+  font-weight: 200 1000;
+  font-style: italic;
+  font-display: swap;
 }
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 :root {
-    --base-color: #272361;
-    --danger: oklch(0.6 0.2 25);
+  --base-color: #272361;
+  --base-color-light: #e6e5f0;
+  --danger: oklch(0.6 0.2 25);
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --bg-color: #f8fafc;
 }
 
 h1,
 h2,
 h3,
 p,
-body {
-    margin: 0;
+body,
+ul {
+  margin: 0;
+  padding: 0;
 }
 
 body {
-    min-height: 100dvh;
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    accent-color: #272361;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  accent-color: var(--base-color);
+  font-family: "Nunito", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
 }
 
-header .container {
+input,
+button,
+select {
+  font-family: inherit;
+}
+
+body > header {
+  background-color: #fefefe;
+  border-right: 1px solid var(--border-color);
+  padding: 1.5rem 1rem;
+}
+
+header {
+  .container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 2rem;
     height: 100%;
+  }
 
-    nav {
-        flex-grow: 1;
+  span {
+    font-weight: 800;
+    font-size: 1.1rem;
+    line-height: 1.2;
+    display: block;
+  }
+  nav {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    li {
+      list-style: none;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+      padding-inline: 0.75rem;
+      padding-block: 0.5rem;
+      cursor: pointer;
+      color: var(--text-muted);
+
+      &:hover {
+        border-radius: 6px;
+        background-color: var(--base-color-light);
+        color: var(--base-color);
+      }
     }
+  }
+
+  a,
+  button {
+    border-radius: 6px;
+    color: inherit;
+    display: block;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  svg {
+  }
+}
+
+header .container > div:last-child {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 main .container {
-    display: grid;
-    gap: 1rem;
+  display: grid;
+  gap: 1rem;
 
-    header {
-        display: flex;
-    }
+  header {
+    display: flex;
+  }
 
-    .table-wrapper {
-        border: 1px solid black;
-        overflow-x: auto;
-    }
+  .table-wrapper {
+    border-radius: 8px;
+    border: 1px solid var(--base-color-light);
+    overflow-x: auto;
+  }
 
-    table {
-        width: 100%;
-        text-wrap: nowrap;
-    }
+  table {
+    border-collapse: collapse;
+    text-align: left;
+    width: 100%;
+    text-wrap: nowrap;
+  }
 }
 
 form div {
-    display: flex;
-
-    &:has(input:not([type="checkbox"])) {
-        flex-direction: column;
-    }
-
-    &:has(input:required) label::after {
-        content: "*";
-        color: var(--danger);
-    }
-
-    p {
-        color: var(--danger);
-        font-style: italic;
-        font-weight: bold;
-        font-size: 0.75rem;
-        letter-spacing: 0.1rem;
-    }
+  display: flex;
+  &:has(input:not([type="checkbox"])) {
+    flex-direction: column;
+  }
+  &:has(input:required) label::after {
+    content: "*";
+    color: var(--danger);
+  }
+  p {
+    color: var(--danger);
+    font-style: italic;
+    font-weight: bold;
+    font-size: 0.75rem;
+    letter-spacing: 0.1rem;
+  }
 }

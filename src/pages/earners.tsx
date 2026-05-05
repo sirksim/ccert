@@ -8,25 +8,30 @@ export default function Earners({
   return (
     <main>
       <div className="container">
-        <header>
-          <div>
+        <header className="page-header">
+          <div className="header-titles">
             <h1>Earners</h1>
             {earners && (
-              <p>
+              <p className="subtitle">
                 {earners.length} earner{earners.length > 1 ? "s" : ""}
               </p>
             )}
           </div>
-          <button command="show-modal" commandfor="addEarnerDialog">
+          <button
+            className="btn-primary"
+            command="show-modal"
+            commandfor="addEarnerDialog"
+          >
             Add New Earner
           </button>
         </header>
+
         {earners && (
           <div className="table-wrapper">
             <table>
               <thead>
                 <tr>
-                  <th>
+                  <th className="w-checkbox">
                     <input type="checkbox" name="selectAll" id="selectAll" />
                   </th>
                   <th>Avatar</th>
@@ -43,62 +48,94 @@ export default function Earners({
               </thead>
               <tbody>
                 {earners.map((earner) => (
-                  <tr>
+                  <tr key={earner.earner_id.toBase64()}>
                     <td>
                       <input type="checkbox" name="selectOne" />
                     </td>
-                    <td>{earner.profile_url}</td>
-                    <td>{earner.full_name}</td>
+                    <td>
+                      <div className="avatar avatar-sm">
+                        <span>
+                          {earner.last_name[0]}
+                          {earner.first_name[0]}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="font-semibold text-main">
+                      {earner.full_name}
+                    </td>
                     <td>{earner.job_title}</td>
                     <td>{earner.company_name}</td>
-                    <td>{earner.is_laureat}</td>
-                    <td>{earner.certificate_code}</td>
-                    <td>{earner.certificate_status}</td>
+                    <td>
+                      {earner.is_laureat === 1 && (
+                        <span className="badge">Laureat</span>
+                      )}
+                    </td>
+                    <td className="font-mono">{earner.certificate_code}</td>
+                    <td>
+                      <span
+                        className={`badge ${earner.certificate_status === "valide" ? "badge-success" : "badge-danger"}`}
+                      >
+                        {earner.certificate_status}
+                      </span>
+                    </td>
                     <td>{earner.issued_at}</td>
                     <td>{earner.expiry_date}</td>
-                    <td>
+                    <td className="actions-cell">
                       <button
                         data-id={earner.earner_id.toBase64()}
-                        className="showActionPopoverBtn"
+                        className="btn-icon showActionPopoverBtn"
                         popovertarget="showActionPopover"
                       >
-                        ...
+                        ⋮
                       </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot></tfoot>
             </table>
           </div>
         )}
       </div>
-      <div id="showActionPopover" popover="auto">
-        <button id="editEarnerBtn">Edit</button>
-        <button>Delete</button>
+
+      <div id="showActionPopover" popover="auto" className="action-menu">
+        <button id="editEarnerBtn" className="menu-item">
+          Modifier
+        </button>
+        <button className="menu-item text-danger">Supprimer</button>
       </div>
-      <dialog id="addEarnerDialog">
-        <h2>Add New Earner</h2>
+
+      <dialog id="addEarnerDialog" className="modal">
+        <div className="modal-header">
+          <h2>Add New Earner</h2>
+          <button
+            className="btn-icon close-btn"
+            command="close"
+            commandfor="addEarnerDialog"
+          >
+            ×
+          </button>
+        </div>
+
         <form id="addEarnerForm">
           <fieldset>
             <legend>Earner Information</legend>
-            <div>
+            <div className="form-group">
               <label htmlFor="first_name">First Name</label>
               <input type="text" id="first_name" name="first_name" required />
             </div>
-            <div>
+            <div className="form-group">
               <label htmlFor="last_name">Last Name</label>
               <input type="text" id="last_name" name="last_name" required />
             </div>
-            <div>
+            <div className="form-group">
               <label htmlFor="profile_url">Profile URL</label>
               <input type="url" id="profile_url" name="profile_url" required />
             </div>
-            <div>
+            <div className="form-group">
               <label htmlFor="job_title">Job Title</label>
               <input type="text" id="job_title" name="job_title" required />
             </div>
-            <div>
+            <div className="form-group">
               <label htmlFor="company_name">Company Name</label>
               <input
                 type="text"
@@ -107,7 +144,7 @@ export default function Earners({
                 required
               />
             </div>
-            <div>
+            <div className="form-checkbox">
               <input
                 type="checkbox"
                 id="is_laureat"
@@ -117,21 +154,32 @@ export default function Earners({
               <label htmlFor="is_laureat">Is Laureate?</label>
             </div>
           </fieldset>
+
           <fieldset>
             <legend>Certificate Details</legend>
-            <div>
+            <div className="form-group">
               <label htmlFor="issued_at">Issue Date</label>
               <input type="date" id="issued_at" name="issued_at" required />
             </div>
-            <div>
+            <div className="form-group">
               <label htmlFor="code">Code</label>
               <input type="text" id="code" name="code" required />
             </div>
           </fieldset>
-          <button type="submit">Add Earner</button>
-          <button type="button" command="close" commandfor="addEarnerDialog">
-            Cancel
-          </button>
+
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="btn-outline"
+              command="close"
+              commandfor="addEarnerDialog"
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn-primary">
+              Add Earner
+            </button>
+          </div>
         </form>
       </dialog>
     </main>

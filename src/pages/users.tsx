@@ -9,7 +9,7 @@ export default function Users({ users }: { users: User[] }) {
             <h1>Users</h1>
             {users && (
               <p>
-                {users.length} users{users.length > 1 ? "s" : ""}
+                {users.length} user{users.length > 1 ? "s" : ""}
               </p>
             )}
           </div>

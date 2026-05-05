@@ -67,7 +67,9 @@ app
     });
   })
   .get("/profile", (c) => {
-    return c.render(<Profile></Profile>);
+    return c.render(<Profile></Profile>, {
+      styles: ["profile"],
+    });
   })
   .get("/earners", (c) => {
     const earners = db.earners.getAllWithCert();
@@ -152,7 +154,11 @@ app
     });
     try {
       const user = db.users.insert({ ...validated, password_hash });
-      return c.json(user);
+      setCookie(c, "flash", `${user.full_name}`, {
+        httpOnly: true,
+        secure: true,
+      });
+      return c.json({ success: true });
     } catch (e) {
       if (e instanceof Error && e.name === "SQLiteError") {
         return c.json({

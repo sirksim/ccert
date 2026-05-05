@@ -13,15 +13,19 @@ addUserForm.addEventListener("submit", async (e) => {
         });
         const data = await resp.json();
         console.log(data);
-        if (!data.success) {
-            const parts = data.error.message.split(".");
-            const fieldName = parts[1];
-            console.log(parts);
-            const field = addUserForm.querySelector(`input[id=${fieldName}]`);
-            const p = field.nextElementSibling;
-            p.textContent = "Email already exist";
-            field.focus();
+        if (data.success) {
+            addUserDialog.close();
+            addUserForm.reset();
+            window.location.reload();
+            return;
         }
+        const parts = data.error.message.split(".");
+        const fieldName = parts[1];
+        console.log(parts);
+        const field = addUserForm.querySelector(`input[id=${fieldName}]`);
+        const p = field.nextElementSibling;
+        p.textContent = "Email already exist";
+        field.focus();
     }
     catch (e) {
         console.log(e);
@@ -37,12 +41,12 @@ userActionPopoverBtns.forEach((btn) => {
         const value = btn.dataset["id"];
         if (value === undefined)
             return;
-        earnerID = value;
+        userID = value;
     });
 });
 const editUserBtn = document.getElementById("editUserBtn");
-editEarnerBtn.addEventListener("click", async () => {
-    const resp = await fetch(`http://localhost:3000/api/v1/edit/user?id=${earnerID}`);
+editUserBtn.addEventListener("click", async () => {
+    const resp = await fetch(`http://localhost:3000/api/v1/edit/user?id=${userID}`);
     const data = await resp.text();
     console.log(data);
     const dialogID = "editUserDialog";

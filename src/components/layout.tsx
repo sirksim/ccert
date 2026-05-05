@@ -15,6 +15,7 @@ export default function Layout(props: LayoutProps) {
           props.styles.map((style) => (
             <link rel="stylesheet" href={`styles/${style}.css`} />
           ))}
+        <script src="/scripts/font-awesome.js" crossOrigin="anonymous"></script>
         <script src="/scripts/layout.js" defer></script>
         {props.scripts &&
           props.scripts.map((script) => (
@@ -28,22 +29,28 @@ export default function Layout(props: LayoutProps) {
               <span>Plateforme de certification</span>
             </div>
             <nav>
-              <li>
-                <a href="/">Dashboard</a>
-              </li>
-              <li>
-                <a href="/earners">Certifiers</a>
-              </li>
-              <li>
-                <a href="/users">Utilisateur</a>
-              </li>
-              <li>
-                <a href="/history">Historiques</a>
-              </li>
+              <ul>
+                <li>
+                  <i class="fa-solid fa-house"></i>
+                  <a href="/">Dashboard</a>
+                </li>
+                <li>
+                  <i class="fa-solid fa-graduation-cap"></i>
+                  <a href="/earners">Certifiers</a>
+                </li>
+                <li>
+                  <i class="fa-solid fa-user"></i>
+                  <a href="/users">Utilisateur</a>
+                </li>
+                <li>
+                  <i class="fa-solid fa-timeline"></i>
+                  <a href="/history">Historiques</a>
+                </li>
+              </ul>
             </nav>
             <div>
               <a href="/login">Login</a>
-              <a href="/profile">View Profile</a>
+              <a href="/profile">Profile</a>
               <button type="button">Logout</button>
             </div>
           </div>

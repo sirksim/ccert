@@ -51,6 +51,7 @@ editEarnerBtn.addEventListener("click", async () => {
     dialog.innerHTML = data;
     document.body.appendChild(dialog);
     dialog.showModal();
+    return;
   }
   const dialog = document.getElementById(dialogID) as HTMLDialogElement;
   dialog.innerHTML = data;
