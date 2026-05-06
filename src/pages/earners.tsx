@@ -66,10 +66,24 @@ export default function Earners({
                     <td>{earner.job_title}</td>
                     <td>{earner.company_name}</td>
                     <td>
+                      <span
+                        className={
+                          earner.is_laureat === 1
+                            ? "badge badge-laureat"
+                            : "badge badge-neutral"
+                        }
+                      >
+                        {earner.is_laureat === 1 && (
+                          <i class="fa-solid fa-star"></i>
+                        )}
+                        {earner.is_laureat === 1 ? "Laureate" : "Awarded"}
+                      </span>
+                    </td>
+                    {/*<td>
                       {earner.is_laureat === 1 && (
                         <span className="badge">Laureat</span>
                       )}
-                    </td>
+                    </td>*/}
                     <td className="font-mono">{earner.certificate_code}</td>
                     <td>
                       <span
@@ -95,6 +109,9 @@ export default function Earners({
             </table>
           </div>
         )}
+        <div>
+          Showing {earners.length} of {earners.length}
+        </div>
       </div>
 
       <div id="showActionPopover" popover="auto" className="action-menu">
@@ -115,7 +132,6 @@ export default function Earners({
             ×
           </button>
         </div>
-
         <form id="addEarnerForm">
           <fieldset>
             <legend>Earner Information</legend>

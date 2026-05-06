@@ -33,7 +33,6 @@ declare module "hono" {
   }
 }
 const app = new Hono();
-
 app.use(
   "/*",
   serveStatic({
@@ -43,7 +42,6 @@ app.use(
     },
   }),
 );
-
 app.use(
   "*",
   jsxRenderer((props) => {

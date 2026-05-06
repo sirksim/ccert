@@ -25,6 +25,10 @@
   --text-muted: #64748b;
   --border-color: #e2e8f0;
   --bg-color: #f8fafc;
+
+  --success: oklch(0.65 0.18 145); /* green-ish */
+  --neutral: oklch(0.7 0.02 260); /* gray-ish */
+  --gold: oklch(0.75 0.16 85);
 }
 
 h1,
@@ -113,9 +117,6 @@ header {
     cursor: pointer;
     font-size: 1rem;
   }
-
-  svg {
-  }
 }
 
 header .container > div:last-child {
@@ -138,6 +139,8 @@ main .container {
     border-radius: 8px;
     border: 1px solid var(--base-color-light);
     overflow-x: auto;
+
+    scrollbar-color: var(--base-color) var(--base-color-light);
   }
 
   table {

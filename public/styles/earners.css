@@ -64,19 +64,45 @@ tr:hover {
 }
 
 .badge {
-  padding: 0.325rem 0.9rem;
-  font-size: 0.825rem;
-  border-radius: 10000px;
+  padding: 0.325rem 0.5rem;
+  font-size: 0.6rem;
+  border-radius: 500rem;
+  letter-spacing: 0.1rem;
+  font-weight: bold;
+}
+
+.badge-laureat {
+  --bg: oklch(from var(--success) calc(l + 0.25) calc(c * 0.4) h);
+  --fg: oklch(from var(--success) calc(l - 0.35) c h);
+  --border: oklch(from var(--success) calc(l - 0.1) calc(c * 0.8) h);
+
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
+}
+.badge-neutral {
+  --bg: oklch(from var(--neutral) calc(l + 0.2) calc(c * 0.3) h);
+  --fg: oklch(from var(--neutral) calc(l - 0.3) c h);
+  --border: oklch(from var(--neutral) calc(l - 0.1) calc(c * 0.6) h);
+
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
 }
 
 .badge-success {
   background-color: var(--base-color-light);
   color: var(--base-color);
   outline: 2px solid var(--base-color);
-  font-weight: bold;
 }
 .badge-danger {
-  background-color: #ef4444;
+  background-color: oklch(from var(--danger) calc(l + 0.25) calc(c * 0.3) h);
+  color: oklch(from var(--danger) calc(l - 0.35) c h);
+  outline: 2px solid oklch(from var(--danger) calc(l - 0.1) calc(c * 0.8) h);
 }
 
 .avatar-sm {
@@ -87,6 +113,7 @@ tr:hover {
   color: var(--base-color);
   border-radius: 50%;
   font-weight: bold;
+  cursor: pointer;
 
   display: flex;
   align-items: center;
@@ -109,12 +136,21 @@ tr:hover {
   color: var(--text-main);
 }
 
+.showActionPopoverBtn {
+  anchor-name: --action-popover;
+}
+
 .action-menu {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   padding: 0.5rem;
   min-width: 150px;
+  position: absolute;
+  position-anchor: --action-popover;
+  top: anchor(bottom);
+  right: anchor(right);
+  margin: 0;
 }
 
 .menu-item {
