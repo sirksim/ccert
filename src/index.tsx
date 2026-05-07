@@ -32,6 +32,15 @@ declare module "hono" {
     ): Response;
   }
 }
+declare module "hono/jsx" {
+  namespace JSX {
+    interface IntrinsicElements {
+      "relative-time": {
+        datetime: string;
+      };
+    }
+  }
+}
 const app = new Hono();
 app.use(
   "/*",
@@ -73,7 +82,7 @@ app
     const earners = db.earners.getAllWithCert();
     return c.render(<Earners earners={earners}></Earners>, {
       styles: ["earners"],
-      scripts: ["earners"],
+      scripts: ["earners", "relative-time-element"],
     });
   })
   .get("/login", (c) => {

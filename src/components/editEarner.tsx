@@ -8,7 +8,7 @@ export default function EditEarner({
   return (
     <>
       <h2>Update Earner</h2>
-      <form id="addEarnerForm">
+      <form id="editEarnerForm">
         <fieldset>
           <legend>Earner Information</legend>
           <div>

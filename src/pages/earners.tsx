@@ -68,22 +68,15 @@ export default function Earners({
                     <td>
                       <span
                         className={
-                          earner.is_laureat === 1
-                            ? "badge badge-laureat"
-                            : "badge badge-neutral"
+                          earner.is_laureat === 1 ? "badge badge-laureat" : ""
                         }
                       >
                         {earner.is_laureat === 1 && (
                           <i class="fa-solid fa-star"></i>
                         )}
-                        {earner.is_laureat === 1 ? "Laureate" : "Awarded"}
+                        {earner.is_laureat === 1 ? "Laureate" : ""}
                       </span>
                     </td>
-                    {/*<td>
-                      {earner.is_laureat === 1 && (
-                        <span className="badge">Laureat</span>
-                      )}
-                    </td>*/}
                     <td className="font-mono">{earner.certificate_code}</td>
                     <td>
                       <span
@@ -92,8 +85,16 @@ export default function Earners({
                         {earner.certificate_status}
                       </span>
                     </td>
-                    <td>{earner.issued_at}</td>
-                    <td>{earner.expiry_date}</td>
+                    <td>
+                      <relative-time datetime={earner.issued_at}>
+                        {earner.issued_at}
+                      </relative-time>
+                    </td>
+                    <td>
+                      <relative-time datetime={earner.expiry_date}>
+                        {earner.expiry_date}
+                      </relative-time>
+                    </td>
                     <td className="actions-cell">
                       <button
                         data-id={earner.earner_id.toBase64()}

@@ -78,8 +78,8 @@ tr:hover {
 
   background: var(--bg);
   color: var(--fg);
-  border: 1px solid var(--border);
-  display: flex;
+  outline: 2px solid var(--border);
+  display: inline-flex;
   justify-content: center;
   align-items: center;
   gap: 0.2rem;
@@ -91,13 +91,25 @@ tr:hover {
 
   background: var(--bg);
   color: var(--fg);
-  border: 1px solid var(--border);
+  outline: 2px solid var(--border);
 }
 
 .badge-success {
   background-color: var(--base-color-light);
   color: var(--base-color);
   outline: 2px solid var(--base-color);
+
+  --bg: oklch(from var(--success) calc(l + 0.25) calc(c * 0.4) h);
+  --fg: oklch(from var(--success) calc(l - 0.35) c h);
+  --border: oklch(from var(--success) calc(l - 0.1) calc(c * 0.8) h);
+
+  background: var(--bg);
+  color: var(--fg);
+  outline: 2px solid var(--border);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
 }
 .badge-danger {
   background-color: oklch(from var(--danger) calc(l + 0.25) calc(c * 0.3) h);
