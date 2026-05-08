@@ -10,9 +10,6 @@ export type UserRole = {
   name: string; // 'Admin' | 'Editor'
 };
 
-// ==========================================
-// 2. Users Table
-// ==========================================
 export type User = {
   id: UserID;
   email: string;
@@ -27,9 +24,6 @@ export type User = {
   deleted_at: string | null;
 };
 
-// ==========================================
-// 3. Earners Table
-// ==========================================
 export type Earner = {
   id: EarnerID;
   last_name: string;
@@ -45,9 +39,6 @@ export type Earner = {
   deleted_at: string | null;
 };
 
-// ==========================================
-// 4. Certificates Table
-// ==========================================
 export type Certificate = {
   id: CertificateID;
   code: string;
@@ -61,19 +52,9 @@ export type Certificate = {
   deleted_at: string | null;
 };
 
-// ==========================================
-// 5. Certificates View (with Status)
-// ==========================================
-// We can extend the base Certificate type to add the calculated status
 export type CertificateWithStatus = Certificate & {
   status: "valide" | "expiré";
 };
-
-// ==========================================
-// DTOs (Data Transfer Objects) for Inserts
-// ==========================================
-// These exclude generated columns (created_at, updated_at, full_name, etc.)
-// which SQLite handles automatically.
 
 export type InsertUserDTO = {
   email: string;
@@ -129,4 +110,40 @@ export type UserWithRole = {
   last_login: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type AuditLogID = string & { readonly brand: unique symbol };
+
+export type AuditAction = "CREATE" | "UPDATE" | "DELETE" | "LOGIN";
+export type EntityType = "earner" | "certificate" | "user";
+
+export type AuditLog = {
+  id: AuditLogID;
+  user_id: UserID;
+  action: AuditAction;
+  entity_type: EntityType;
+  entity_id: string | Buffer | null;
+  details: string;
+  created_at: string;
+};
+
+export type InsertAuditLogDTO = {
+  user_id: UserID;
+  action: AuditAction;
+  entity_type: EntityType;
+  entity_id: any;
+  details: any;
+};
+export type ExpandedAuditLog = {
+  log_id: AuditLogID;
+  action: AuditAction;
+  entity_type: EntityType;
+  entity_id: string | Buffer | null;
+  details: string;
+  created_at: string;
+  actor_id: UserID | null;
+  actor_first_name: string | null;
+  actor_last_name: string | null;
+  actor_email: string | null;
+  actor_full_name: string | null;
 };

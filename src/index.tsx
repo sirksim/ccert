@@ -97,7 +97,8 @@ app
     });
   })
   .get("/history", (c) => {
-    return c.render(<History></History>);
+    const logs = db.auditLogs.getExpanded();
+    return c.render(<History logs={logs}></History>);
   })
   .get("/reset", (c) => {
     return c.render(<Reset></Reset>);
@@ -206,6 +207,27 @@ app
           code: validated.code,
           issued_at: validated.issued_at,
           created_by,
+        });
+
+        db.auditLogs.insert({
+          user_id: created_by,
+          action: "CREATE",
+          entity_type: "certificate",
+          entity_id: cert.id,
+          details: {
+            message: `Added new certificate: ${cert.code}`,
+            data: cert,
+          },
+        });
+        db.auditLogs.insert({
+          user_id: created_by,
+          action: "CREATE",
+          entity_type: "earner",
+          entity_id: earner.id,
+          details: {
+            message: `Added new earner: ${earner.full_name}`,
+            data: earner,
+          },
         });
       });
       setCookie(

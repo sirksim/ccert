@@ -1,10 +1,14 @@
-import Database, { type SQLQueryBindings } from "bun:sqlite";
+import Database, { SQLiteError, type SQLQueryBindings } from "bun:sqlite";
 import type {
+  AuditLog,
+  AuditLogID,
   CertificateID as CertID,
   Certificate,
   Earner,
   EarnerID,
   EarnerWithCertificate,
+  ExpandedAuditLog,
+  InsertAuditLogDTO,
   InsertCertificateDTO,
   InsertEarnerDTO,
   InsertUserDTO,
@@ -134,6 +138,54 @@ export const db = {
         },
       );
       return stmt.get()!;
+    },
+  },
+  auditLogs: {
+    getExpanded: () => {
+      return connection
+        .prepare<ExpandedAuditLog, SQLQueryBindings | SQLQueryBindings[]>(
+          `
+          SELECT * FROM audit_logs_expanded
+          ORDER BY created_at DESC
+        `,
+        )
+        .all();
+    },
+    insert: (data: InsertAuditLogDTO) => {
+      const stmt = connection.prepare<
+        AuditLog,
+        SQLQueryBindings | SQLQueryBindings[]
+      >(`
+        INSERT INTO audit_logs (id, user_id, action, entity_type, entity_id, details)
+        VALUES ($id, $user_id, $action, $entity_type, $entity_id, $details)
+      `);
+      const changes = stmt.run({
+        $id: generateId<AuditLogID>(),
+        $user_id: data.user_id,
+        $action: data.action,
+        $entity_type: data.entity_type,
+        $entity_id: data.entity_id,
+        $details: JSON.stringify(data.details),
+      });
+      return connection
+        .prepare<
+          AuditLog,
+          SQLQueryBindings | SQLQueryBindings[]
+        >(`SELECT * FROM audit_logs WHERE rowid = ?`)
+        .get(changes.lastInsertRowid)!;
+    },
+    getHistoryForEarner: (earnerId: EarnerID) => {
+      return connection
+        .prepare(
+          `
+         SELECT a.*, u.first_name, u.last_name
+         FROM audit_logs a
+         JOIN users u ON a.user_id = u.id
+         WHERE a.entity_id = $earnerId
+         ORDER BY a.created_at DESC
+       `,
+        )
+        .all({ $earnerId: earnerId });
     },
   },
   transaction: <T>(callback: () => T): T => {

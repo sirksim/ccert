@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id BLOB PRIMARY KEY,
+    user_id BLOB NOT NULL REFERENCES users(id),
+    action TEXT NOT NULL CHECK(action IN ('CREATE', 'UPDATE', 'DELETE', 'LOGIN','LOGOUT')),
+    entity_type TEXT NOT NULL CHECK(entity_type IN ('earner','certificate','user')),
+    entity_id BLOB,
+    details TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+) STRICT;
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
