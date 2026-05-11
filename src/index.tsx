@@ -253,6 +253,47 @@ app
       }
       return c.json({ success: false, e });
     }
+  })
+  .put("/api/v1/earners", zValidator("form", earnerFormSchema), (c) => {
+    const id = Uint8Array.fromBase64(c.req.query("id")!) as EarnerID;
+    const earner = db.earners.getByID(id);
+    if (earner === null) {
+      return c.json({ sucess: false, error: "no earner found" });
+    }
+    const validated = c.req.valid("form");
+    const session = getCookie(c, "session");
+    if (session === undefined) {
+      return c.json({ success: false, error: "not logged in" });
+    }
+    const user = Uint8Array.fromBase64(session) as UserID;
+    db.transaction(() => {
+      const changes: Record<string, { from: any; to: any }> = {};
+
+      for (const [key, newValue] of Object.entries(validated)) {
+        const oldValue = earner[key as keyof typeof earner];
+        if (oldValue !== newValue) {
+          changes[key] = { from: oldValue, to: newValue };
+        }
+      }
+
+      console.log(validated);
+      db.earners.update(id, validated);
+      db.certificate.updateByEarner(id, {
+        code: validated.code,
+        issued_at: validated.issued_at,
+      });
+      db.auditLogs.insert({
+        user_id: user,
+        action: "UPDATE",
+        entity_type: "earner",
+        entity_id: id,
+        details: {
+          message: `A modifié le profil de ${validated.first_name} ${validated.last_name}`,
+          changes,
+        },
+      });
+    });
+    return c.json({ success: true });
   });
 
 export default app;

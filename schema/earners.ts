@@ -15,10 +15,10 @@ export const insertEarnerSchema = z.object({
   profile_url: z.url("Must be a valid URL"),
   job_title: z.string().min(2, "Job title is required"),
   company_name: z.string().min(2, "Company name is required"),
-  is_laureat: z
-    .literal("1")
-    .transform((x) => (x === undefined ? 1 : 0))
-    .optional(),
+  is_laureat: z.preprocess(
+    (x) => (x === undefined ? "0" : Number.parseInt(x as string)),
+    z.union([z.literal(1), z.literal(0)]),
+  ),
   created_by: uuidBufferSchema.transform((val) => val as UserID),
   cert_id: uuidBufferSchema.transform((val) => val as CertificateID),
   code: z.string().trim().min(3, "Certificate code is required"),

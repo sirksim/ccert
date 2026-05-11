@@ -49,10 +49,10 @@ export default function Earners({
               <tbody>
                 {earners.map((earner) => (
                   <tr key={earner.earner_id.toBase64()}>
-                    <td>
+                    <td data-label="Sélectionner">
                       <input type="checkbox" name="selectOne" />
                     </td>
-                    <td>
+                    <td data-label="Avatar">
                       <div className="avatar avatar-sm">
                         <span>
                           {earner.last_name[0]}
@@ -60,12 +60,15 @@ export default function Earners({
                         </span>
                       </div>
                     </td>
-                    <td className="font-semibold text-main">
+                    <td
+                      data-label="Full Name"
+                      className="font-semibold text-main"
+                    >
                       {earner.full_name}
                     </td>
-                    <td>{earner.job_title}</td>
-                    <td>{earner.company_name}</td>
-                    <td>
+                    <td data-label="Job Title">{earner.job_title}</td>
+                    <td data-label="Company Name">{earner.company_name}</td>
+                    <td data-label="Laureat">
                       <span
                         className={
                           earner.is_laureat === 1 ? "badge badge-laureat" : ""
@@ -77,25 +80,27 @@ export default function Earners({
                         {earner.is_laureat === 1 ? "Laureate" : ""}
                       </span>
                     </td>
-                    <td className="font-mono">{earner.certificate_code}</td>
-                    <td>
+                    <td data-label="Code" className="font-mono">
+                      {earner.certificate_code}
+                    </td>
+                    <td data-label="Status">
                       <span
                         className={`badge ${earner.certificate_status === "valide" ? "badge-success" : "badge-danger"}`}
                       >
                         {earner.certificate_status}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Issued At">
                       <relative-time datetime={earner.issued_at}>
                         {earner.issued_at}
                       </relative-time>
                     </td>
-                    <td>
+                    <td data-label="Expiry Date">
                       <relative-time datetime={earner.expiry_date}>
                         {earner.expiry_date}
                       </relative-time>
                     </td>
-                    <td className="actions-cell">
+                    <td data-label="Action" className="actions-cell">
                       <button
                         data-id={earner.earner_id.toBase64()}
                         className="btn-icon showActionPopoverBtn"

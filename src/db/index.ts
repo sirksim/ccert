@@ -64,6 +64,29 @@ export const db = {
       );
       return stmt.get()!;
     },
+    update: (id: EarnerID, data: Partial<InsertEarnerDTO>) => {
+      const stmt = connection.prepare(`
+            UPDATE earners
+            SET
+              first_name = COALESCE($first_name, first_name),
+              last_name = COALESCE($last_name, last_name),
+              profile_url = COALESCE($profile_url, profile_url),
+              job_title = COALESCE($job_title, job_title),
+              company_name = COALESCE($company_name, company_name),
+              is_laureat = COALESCE($is_laureat, is_laureat),
+              updated_at = datetime('now')
+            WHERE id = $id
+          `);
+      stmt.run({
+        $id: id,
+        $first_name: data.first_name ?? null,
+        $last_name: data.last_name ?? null,
+        $profile_url: data.profile_url ?? null,
+        $job_title: data.job_title ?? null,
+        $company_name: data.company_name ?? null,
+        $is_laureat: data.is_laureat ?? null,
+      });
+    },
   },
   users: {
     updateLastLogin: (user: User) => {
@@ -138,6 +161,24 @@ export const db = {
         },
       );
       return stmt.get()!;
+    },
+    updateByEarner: (
+      id: EarnerID,
+      data: { code?: string; issued_at?: string },
+    ) => {
+      const stmt = connection.prepare(`
+            UPDATE certificates
+            SET
+              code = COALESCE($code, code),
+              issued_at = COALESCE($issued_at, issued_at)
+            WHERE earner_id = $earnerId
+          `);
+
+      stmt.run({
+        $earnerId: id,
+        $code: data.code ?? null,
+        $issued_at: data.issued_at ?? null,
+      });
     },
   },
   auditLogs: {

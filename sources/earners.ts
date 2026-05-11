@@ -43,17 +43,27 @@ editEarnerBtn.addEventListener("click", async () => {
     `http://localhost:3000/api/v1/edit/earner?id=${earnerID}`,
   );
   const data = await resp.text();
-  console.log(data);
   const dialogID = "editEarnerDialog";
-  if (document.getElementById(dialogID) === null) {
-    const dialog = document.createElement("dialog");
+  let dialog = document.getElementById(dialogID) as HTMLDialogElement;
+  if (dialog === null) {
+    dialog = document.createElement("dialog");
     dialog.id = dialogID;
-    dialog.innerHTML = data;
     document.body.appendChild(dialog);
-    dialog.showModal();
-    return;
   }
-  const dialog = document.getElementById(dialogID) as HTMLDialogElement;
   dialog.innerHTML = data;
   dialog.showModal();
+
+  const editEarnerForm = dialog.querySelector(
+    "#editEarnerForm",
+  ) as HTMLFormElement;
+  editEarnerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(editEarnerForm);
+    const resp = await fetch(`/api/v1/earners?id=${earnerID}`, {
+      method: "PUT",
+      body: new URLSearchParams(formData as any),
+    });
+    const data = await resp.json();
+    console.log(data);
+  });
 });
