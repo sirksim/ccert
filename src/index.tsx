@@ -26,6 +26,7 @@ declare module "hono" {
     (
       content: string | Promise<string>,
       props?: {
+        flash?: string | undefined;
         styles?: string[];
         scripts?: string[];
       },
@@ -53,9 +54,10 @@ app.use(
 );
 app.use(
   "*",
-  jsxRenderer((props) => {
+  jsxRenderer((props, c) => {
+    const flash = deleteCookie(c, "flash");
     return (
-      <Layout scripts={props.scripts} styles={props.styles}>
+      <Layout flash={flash} scripts={props.scripts} styles={props.styles}>
         {props.children}
       </Layout>
     );
@@ -268,14 +270,12 @@ app
     const user = Uint8Array.fromBase64(session) as UserID;
     db.transaction(() => {
       const changes: Record<string, { from: any; to: any }> = {};
-
       for (const [key, newValue] of Object.entries(validated)) {
         const oldValue = earner[key as keyof typeof earner];
         if (oldValue !== newValue) {
           changes[key] = { from: oldValue, to: newValue };
         }
       }
-
       console.log(validated);
       db.earners.update(id, validated);
       db.certificate.updateByEarner(id, {
@@ -292,6 +292,10 @@ app
           changes,
         },
       });
+    });
+    setCookie(c, "flash", `Updated earner ${earner.full_name}`, {
+      httpOnly: true,
+      secure: true,
     });
     return c.json({ success: true });
   });

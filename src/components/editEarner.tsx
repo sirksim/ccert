@@ -12,51 +12,51 @@ export default function EditEarner({
         <fieldset>
           <legend>Earner Information</legend>
           <div>
-            <label htmlFor="first_name">First Name</label>
+            <label htmlFor="edit_first_name">First Name</label>
             <input
               value={earner.first_name}
               type="text"
-              id="first_name"
+              id="edit_first_name"
               name="first_name"
               required
             />
           </div>
           <div>
-            <label htmlFor="last_name">Last Name</label>
+            <label htmlFor="edit_last_name">Last Name</label>
             <input
               value={earner.last_name}
               type="text"
-              id="last_name"
+              id="edit_last_name"
               name="last_name"
               required
             />
           </div>
           <div>
-            <label htmlFor="profile_url">Profile URL</label>
+            <label htmlFor="edit_profile_url">Profile URL</label>
             <input
               value={earner.profile_url}
               type="url"
-              id="profile_url"
+              id="edit_profile_url"
               name="profile_url"
               required
             />
           </div>
           <div>
-            <label htmlFor="job_title">Job Title</label>
+            <label htmlFor="edit_job_title">Job Title</label>
             <input
               value={earner.job_title}
               type="text"
-              id="job_title"
+              id="edit_job_title"
               name="job_title"
               required
             />
           </div>
           <div>
-            <label htmlFor="company_name">Company Name</label>
+            <label htmlFor="edit_company_name">Company Name</label>
             <input
               value={earner.company_name}
               type="text"
-              id="company_name"
+              id="edit_company_name"
               name="company_name"
               required
             />
@@ -64,32 +64,32 @@ export default function EditEarner({
           <div>
             <input
               type="checkbox"
-              id="is_laureat"
+              id="edit_is_laureat"
               name="is_laureat"
               value="1"
               checked={earner.is_laureat === 1}
             />
-            <label htmlFor="is_laureat">Is Laureate?</label>
+            <label htmlFor="edit_is_laureat">Is Laureate?</label>
           </div>
         </fieldset>
         <fieldset>
           <legend>Certificate Details</legend>
           <div>
-            <label htmlFor="issued_at">Issue Date</label>
+            <label htmlFor="edit_issued_at">Issue Date</label>
             <input
               value={earner.issued_at || ""}
               type="date"
-              id="issued_at"
+              id="edit_issued_at"
               name="issued_at"
               required
             />
           </div>
           <div>
-            <label htmlFor="code">Code</label>
+            <label htmlFor="edit_code">Code</label>
             <input
               value={earner.certificate_code || ""}
               type="text"
-              id="code"
+              id="edit_code"
               name="code"
               required
             />

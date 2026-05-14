@@ -8,11 +8,11 @@ export default function Earners({
   return (
     <main>
       <div className="container">
-        <header className="page-header">
-          <div className="header-titles">
+        <header>
+          <div>
             <h1>Earners</h1>
             {earners && (
-              <p className="subtitle">
+              <p>
                 {earners.length} earner{earners.length > 1 ? "s" : ""}
               </p>
             )}
@@ -48,7 +48,7 @@ export default function Earners({
               </thead>
               <tbody>
                 {earners.map((earner) => (
-                  <tr key={earner.earner_id.toBase64()}>
+                  <tr>
                     <td data-label="Sélectionner">
                       <input type="checkbox" name="selectOne" />
                     </td>

@@ -131,15 +131,10 @@ main .container {
   display: grid;
   gap: 1rem;
 
-  header {
-    display: flex;
-  }
-
   .table-wrapper {
     border-radius: 8px;
     border: 1px solid var(--base-color-light);
     overflow-x: auto;
-
     scrollbar-color: var(--base-color) var(--base-color-light);
   }
 
@@ -148,6 +143,33 @@ main .container {
     text-align: left;
     width: 100%;
     text-wrap: nowrap;
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    th {
+      background-color: var(--bg-color);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 700;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
   }
 }
 
@@ -166,5 +188,43 @@ form div {
     font-weight: bold;
     font-size: 0.75rem;
     letter-spacing: 0.1rem;
+  }
+}
+
+.flash {
+  position: absolute;
+  top: 10px;
+  right: 5px;
+  background-color: var(--base-color-light);
+  border-radius: 3px;
+  color: var(--base-color);
+  padding: 1rem 2rem;
+
+  &::before {
+    content: "";
+    position: absolute;
+    border-radius: 3px;
+    height: 2px;
+    background-color: var(--base-color);
+    bottom: 0px;
+    left: 0;
+    right: 0;
+  }
+}
+
+.container > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    font-size: 1.5rem;
+    color: var(--text-main);
+  }
+
+  p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
   }
 }

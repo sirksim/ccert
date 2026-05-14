@@ -65,5 +65,9 @@ editEarnerBtn.addEventListener("click", async () => {
     });
     const data = await resp.json();
     console.log(data);
+    if (data.success) {
+      editEarnerForm.reset();
+      window.location.reload();
+    }
   });
 });

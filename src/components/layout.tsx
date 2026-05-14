@@ -1,5 +1,6 @@
 type LayoutProps = {
   children: any;
+  flash?: string | undefined;
   styles?: string[];
   scripts?: string[];
 };
@@ -23,6 +24,11 @@ export default function Layout(props: LayoutProps) {
           ))}
       </head>
       <body>
+        {props.flash && (
+          <div className="flash">
+            <p>{props.flash}</p>
+          </div>
+        )}
         <header>
           <div className="container">
             <div>

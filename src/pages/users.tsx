@@ -36,15 +36,15 @@ export default function Users({ users }: { users: User[] }) {
               <tbody>
                 {users.map((user) => (
                   <tr>
-                    <td>
+                    <td data-label="Sélectionner">
                       <input type="checkbox" name="selectOne" />
                     </td>
-                    <td>{user.first_name}</td>
-                    <td>{user.last_name}</td>
-                    <td>{user.email}</td>
-                    <td>{user.role_id}</td>
-                    <td>{user.last_login || "N/A"}</td>
-                    <td>
+                    <td data-label="First Name">{user.first_name}</td>
+                    <td data-label="Last Name">{user.last_name}</td>
+                    <td data-label="Email">{user.email}</td>
+                    <td data-label="Role">{user.role_id}</td>
+                    <td data-label="Last Login">{user.last_login || "N/A"}</td>
+                    <td data-label="Action">
                       <button
                         data-id={user.id.toBase64()}
                         className="showActionPopoverBtn"
