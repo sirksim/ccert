@@ -88,7 +88,7 @@ CREATE VIEW IF NOT EXISTS certificates_with_status AS
 SELECT
   *,
   CASE
-    WHEN datetime(expiry_date) > datetime('now') THEN 'valide'
+    WHEN date(expiry_date) > date('now') THEN 'valide'
     ELSE 'expiré'
   END AS status
 FROM certificates

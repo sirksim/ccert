@@ -55,7 +55,6 @@ export default function Layout(props: LayoutProps) {
               </ul>
             </nav>
             <div>
-              <a href="/login">Login</a>
               <a href="/profile">Profile</a>
               <button type="button">Logout</button>
             </div>

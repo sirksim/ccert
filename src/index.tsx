@@ -37,11 +37,33 @@ declare module "hono/jsx" {
   namespace JSX {
     interface IntrinsicElements {
       "relative-time": {
-        datetime: string;
+        datetime: string | null;
+        children?: any;
       };
     }
   }
 }
+const PAGE_SIZE = 3;
+
+const getPagination = (
+  requestedPage: string | undefined,
+  totalItems: number,
+) => {
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const parsedPage = Number.parseInt(requestedPage ?? "1", 10);
+  const page = Number.isNaN(parsedPage)
+    ? 1
+    : Math.min(Math.max(parsedPage, 1), totalPages);
+
+  return {
+    page,
+    totalPages,
+    totalItems,
+    perPage: PAGE_SIZE,
+    offset: (page - 1) * PAGE_SIZE,
+  };
+};
+
 const app = new Hono();
 app.use(
   "/*",
@@ -56,6 +78,7 @@ app.use(
   "*",
   jsxRenderer((props, c) => {
     const flash = deleteCookie(c, "flash");
+
     return (
       <Layout flash={flash} scripts={props.scripts} styles={props.styles}>
         {props.children}
@@ -63,6 +86,46 @@ app.use(
     );
   }),
 );
+app.use(async (c, next) => {
+  const publicPaths = new Set(["/login", "/api/v1/login"]);
+  const isPublicPath = publicPaths.has(c.req.path);
+  const session = getCookie(c, "session");
+
+  if (session !== undefined) {
+    try {
+      const userId = Uint8Array.fromBase64(session) as UserID;
+      const user = db.users.getByID(userId);
+
+      if (user !== null) {
+        if (c.req.path === "/login") {
+          return c.redirect("/");
+        }
+
+        await next();
+        return;
+      }
+    } catch {
+      // Invalid session cookie. It is cleared below and the request is treated
+      // as unauthenticated.
+    }
+
+    deleteCookie(c, "session", {
+      secure: true,
+      httpOnly: true,
+    });
+  }
+
+  if (isPublicPath) {
+    await next();
+    return;
+  }
+
+  if (c.req.path.startsWith("/api/")) {
+    return c.json({ success: false, error: "Authentication required" }, 401);
+  }
+
+  return c.redirect("/login");
+});
 
 app
   .get("/", (c) => {
@@ -81,26 +144,43 @@ app
     });
   })
   .get("/earners", (c) => {
-    const earners = db.earners.getAllWithCert();
-    return c.render(<Earners earners={earners}></Earners>, {
-      styles: ["earners"],
-      scripts: ["earners", "relative-time-element"],
-    });
+    const totalItems = db.earners.countWithCert();
+    const pagination = getPagination(c.req.query("page"), totalItems);
+    const earners = db.earners.getAllWithCertPaginated(
+      pagination.perPage,
+      pagination.offset,
+    );
+
+    return c.render(
+      <Earners earners={earners} pagination={pagination}></Earners>,
+      {
+        styles: ["earners"],
+        scripts: ["earners", "relative-time-element"],
+      },
+    );
   })
   .get("/login", (c) => {
     return c.render(<Login></Login>, {
+      styles: ["login"],
       scripts: ["login"],
     });
   })
   .get("/users", (c) => {
-    const users = db.users.getAll();
-    return c.render(<Users users={users}></Users>, {
+    const totalItems = db.users.count();
+    const pagination = getPagination(c.req.query("page"), totalItems);
+    const users = db.users.getPaginated(pagination.perPage, pagination.offset);
+
+    return c.render(<Users users={users} pagination={pagination}></Users>, {
+      styles: ["earners"],
       scripts: ["users"],
     });
   })
   .get("/history", (c) => {
     const logs = db.auditLogs.getExpanded();
-    return c.render(<History logs={logs}></History>);
+    return c.render(<History logs={logs}></History>, {
+      styles: ["history", "earners"],
+      scripts: ["relative-time-element"],
+    });
   })
   .get("/reset", (c) => {
     return c.render(<Reset></Reset>);
@@ -127,14 +207,28 @@ app
 
     const user = db.users.getByEmail(email);
     if (user === null) {
-      return c.json({ success: false, error: "Invalid credentials" });
+      return c.json(
+        {
+          success: false,
+          error:
+            "Identifiants invalides. Vérifiez votre email et votre mot de passe.",
+        },
+        401,
+      );
     }
     const match = await Bun.password.verify(
       validated.password,
       user.password_hash,
     );
     if (!match) {
-      return c.json({ success: false, error: "Invalid crendentials" });
+      return c.json(
+        {
+          success: false,
+          error:
+            "Identifiants invalides. Vérifiez votre email et votre mot de passe.",
+        },
+        401,
+      );
     }
     setCookie(c, "session", user.id.toBase64(), {
       secure: true,

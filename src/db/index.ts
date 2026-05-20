@@ -41,6 +41,30 @@ export const db = {
         >("SELECT * FROM earners_with_certificates")
         .all();
     },
+    getAllWithCertPaginated: (
+      limit: number,
+      offset: number,
+    ): EarnerWithCertificate[] => {
+      return connection
+        .prepare<EarnerWithCertificate, SQLQueryBindings | SQLQueryBindings[]>(
+          `
+          SELECT * FROM earners_with_certificates
+          ORDER BY earner_created_at DESC
+          LIMIT $limit OFFSET $offset
+          `,
+        )
+        .all({ $limit: limit, $offset: offset });
+    },
+    countWithCert: (): number => {
+      const result = connection
+        .prepare<
+          { total: number },
+          []
+        >(`SELECT COUNT(*) AS total FROM earners_with_certificates`)
+        .get();
+
+      return result?.total ?? 0;
+    },
     insert: (data: InsertEarnerDTO): Earner => {
       const stmt = connection.prepare<
         Earner,
@@ -98,6 +122,28 @@ export const db = {
     getAll: (): User[] => {
       const stmt = connection.prepare<User, []>(`SELECT * FROM users`);
       return stmt.all();
+    },
+    getPaginated: (limit: number, offset: number): User[] => {
+      return connection
+        .prepare<User, SQLQueryBindings | SQLQueryBindings[]>(
+          `
+          SELECT * FROM users
+          WHERE deleted_at IS NULL
+          ORDER BY created_at DESC
+          LIMIT $limit OFFSET $offset
+          `,
+        )
+        .all({ $limit: limit, $offset: offset });
+    },
+    count: (): number => {
+      const result = connection
+        .prepare<
+          { total: number },
+          []
+        >(`SELECT COUNT(*) AS total FROM users WHERE deleted_at IS NULL`)
+        .get();
+
+      return result?.total ?? 0;
     },
     getByID: (id: UserID): UserWithRole | null => {
       const stmt = connection.prepare<

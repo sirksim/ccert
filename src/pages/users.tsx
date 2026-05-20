@@ -1,6 +1,20 @@
+import Pagination from "@components/pagination";
 import type { User } from "@databases/types";
 
-export default function Users({ users }: { users: User[] }) {
+type PaginationMeta = {
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  perPage: number;
+};
+
+export default function Users({
+  users,
+  pagination,
+}: {
+  users: User[];
+  pagination: PaginationMeta;
+}) {
   return (
     <main>
       <div className="container">
@@ -60,6 +74,7 @@ export default function Users({ users }: { users: User[] }) {
             </table>
           </div>
         )}
+        <Pagination basePath="/users" {...pagination} />
       </div>
       <div id="showActionPopover" popover="auto">
         <button id="editUserBtn">Edit</button>

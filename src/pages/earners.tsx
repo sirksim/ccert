@@ -1,9 +1,19 @@
+import Pagination from "@components/pagination";
 import type { EarnerWithCertificate } from "@databases/types";
+
+type PaginationMeta = {
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  perPage: number;
+};
 
 export default function Earners({
   earners,
+  pagination,
 }: {
   earners: EarnerWithCertificate[];
+  pagination: PaginationMeta;
 }) {
   return (
     <main>
@@ -115,9 +125,7 @@ export default function Earners({
             </table>
           </div>
         )}
-        <div>
-          Showing {earners.length} of {earners.length}
-        </div>
+        <Pagination basePath="/earners" {...pagination} />
       </div>
 
       <div id="showActionPopover" popover="auto" className="action-menu">

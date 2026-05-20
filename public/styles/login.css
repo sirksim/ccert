@@ -1,0 +1,242 @@
+:root {
+  --login-bg: oklch(from var(--base-color) calc(l + 0.68) calc(c * 0.12) h);
+  --login-surface: oklch(
+    from var(--base-color) calc(l + 0.78) calc(c * 0.04) h
+  );
+  --login-surface-soft: oklch(
+    from var(--base-color) calc(l + 0.72) calc(c * 0.09) h
+  );
+
+  --login-text: oklch(from var(--base-color) calc(l - 0.12) calc(c * 0.9) h);
+  --login-muted: oklch(from var(--base-color) calc(l + 0.18) calc(c * 0.35) h);
+  --login-border: oklch(from var(--base-color) calc(l + 0.58) calc(c * 0.2) h);
+  --login-focus: oklch(from var(--base-color) calc(l + 0.05) c h);
+  --login-error: oklch(
+    from var(--base-color) calc(l + 0.02) calc(c * 1.2) calc(h + 145)
+  );
+  --login-error-bg: oklch(
+    from var(--base-color) calc(l + 0.68) calc(c * 0.14) calc(h + 145)
+  );
+  --login-hero-glow: oklch(
+    from var(--base-color) calc(l + 0.55) calc(c * 0.3) h
+  );
+  --login-shadow: 0 24px 60px
+    oklch(from var(--base-color) calc(l - 0.22) calc(c * 0.5) h / 0.18);
+  --login-shadow-soft: 0 12px 28px
+    oklch(from var(--base-color) calc(l - 0.18) calc(c * 0.35) h / 0.12);
+  --login-focus-shadow: 0 0 0 4px
+    oklch(from var(--base-color) calc(l + 0.45) calc(c * 0.28) h / 0.6);
+  --login-error-shadow: 0 0 0 4px
+    oklch(from var(--login-error) calc(l + 0.34) calc(c * 0.24) h / 0.55);
+}
+
+body:has(.login-page) {
+  grid-template-columns: 1fr;
+  background:
+    radial-gradient(
+      circle at top left,
+      var(--login-hero-glow),
+      transparent 34rem
+    ),
+    var(--login-bg);
+}
+
+body:has(.login-page) > header {
+  display: none;
+}
+
+.login-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+.login-card {
+  width: min(100%, 460px);
+  background: var(--login-surface);
+  border: 1px solid var(--login-border);
+  border-radius: 24px;
+  box-shadow: var(--login-shadow);
+  padding: clamp(1.5rem, 5vw, 2.25rem);
+}
+
+.login-brand {
+  margin-bottom: 1.5rem;
+}
+
+.login-eyebrow {
+  color: var(--login-muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.login-card h1 {
+  color: var(--login-text);
+  font-size: clamp(1.9rem, 5vw, 2.45rem);
+  line-height: 1;
+  margin-top: 0.25rem;
+}
+
+.login-form,
+.login-form .form-group {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.login-form {
+  gap: 1rem;
+}
+
+.login-form label,
+.label-row a {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.login-form label {
+  color: var(--login-text);
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.label-row a {
+  color: var(--base-color);
+  text-decoration: none;
+}
+
+.label-row a:hover {
+  color: var(--login-focus);
+  text-decoration: underline;
+}
+
+.input-shell {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  background: var(--login-surface-soft);
+  outline: 1px solid var(--login-border);
+  border-radius: 14px;
+  color: var(--login-muted);
+  padding-inline: 0.95rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.input-shell:focus-within {
+  background: var(--login-surface);
+  outline-color: var(--base-color);
+  box-shadow: var(--login-focus-shadow);
+  color: var(--base-color);
+}
+
+.input-shell:has(input[aria-invalid="true"]) {
+  outline-color: var(--login-error);
+  box-shadow: var(--login-error-shadow);
+}
+
+.input-shell input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--login-text);
+  font-size: 1rem;
+}
+
+.input-shell input::placeholder {
+  color: var(--login-muted);
+}
+
+.password-toggle {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--login-muted);
+  cursor: pointer;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  background: var(--login-surface-soft);
+  color: var(--base-color);
+}
+
+.field-error,
+.form-error {
+  min-height: 1.1rem;
+  color: var(--login-error);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.form-error:not(:empty) {
+  min-height: auto;
+  background: var(--login-error-bg);
+  border: 1px solid var(--login-error);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+}
+
+.login-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 3.15rem;
+  border: 0;
+  border-radius: 14px;
+  background: var(--base-color);
+  color: var(--login-surface);
+  box-shadow: var(--login-shadow-soft);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 900;
+  margin-top: 0.25rem;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.login-submit:hover:not(:disabled),
+.login-submit:focus-visible:not(:disabled) {
+  background: var(--login-focus);
+  box-shadow: var(--login-shadow);
+  transform: translateY(-1px);
+}
+
+.login-submit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+@media (max-width: 760px) {
+  body:has(.login-page) {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .label-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

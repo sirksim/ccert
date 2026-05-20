@@ -114,7 +114,7 @@ export type UserWithRole = {
 
 export type AuditLogID = string & { readonly brand: unique symbol };
 
-export type AuditAction = "CREATE" | "UPDATE" | "DELETE" | "LOGIN";
+export type AuditAction = "CREATE" | "UPDATE" | "DELETE" | "LOGIN" | "LOGOUT";
 export type EntityType = "earner" | "certificate" | "user";
 
 export type AuditLog = {
