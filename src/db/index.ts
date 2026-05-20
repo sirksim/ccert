@@ -20,6 +20,82 @@ import { generateId } from "./utils";
 
 const connection = new Database("ccert.db");
 export const db = {
+  dashboard: {
+    getStats: () => {
+      const certificateStats = connection
+        .prepare<
+          {
+            total_certificates: number;
+            valid_certificates: number;
+            expired_certificates: number;
+            expiring_soon: number;
+          },
+          []
+        >(
+          `
+          SELECT
+            COUNT(*) AS total_certificates,
+            SUM(CASE WHEN status = 'valide' THEN 1 ELSE 0 END) AS valid_certificates,
+            SUM(CASE WHEN status = 'expiré' THEN 1 ELSE 0 END) AS expired_certificates,
+            SUM(
+              CASE
+                WHEN date(expiry_date) BETWEEN date('now') AND date('now', '+30 days') THEN 1
+                ELSE 0
+              END
+            ) AS expiring_soon
+          FROM certificates_with_status
+          `,
+        )
+        .get();
+
+      const totalEarners = connection
+        .prepare<
+          { total: number },
+          []
+        >(`SELECT COUNT(*) AS total FROM earners WHERE deleted_at IS NULL`)
+        .get();
+
+      const totalUsers = connection
+        .prepare<
+          { total: number },
+          []
+        >(`SELECT COUNT(*) AS total FROM users WHERE deleted_at IS NULL`)
+        .get();
+
+      return {
+        totalCertificates: certificateStats?.total_certificates ?? 0,
+        validCertificates: certificateStats?.valid_certificates ?? 0,
+        expiredCertificates: certificateStats?.expired_certificates ?? 0,
+        expiringSoon: certificateStats?.expiring_soon ?? 0,
+        totalEarners: totalEarners?.total ?? 0,
+        totalUsers: totalUsers?.total ?? 0,
+      };
+    },
+    getExpiringSoon: (): EarnerWithCertificate[] => {
+      return connection
+        .prepare<EarnerWithCertificate, []>(
+          `
+          SELECT * FROM earners_with_certificates
+          WHERE expiry_date IS NOT NULL
+            AND date(expiry_date) BETWEEN date('now') AND date('now', '+30 days')
+          ORDER BY expiry_date ASC
+          LIMIT 5
+          `,
+        )
+        .all();
+    },
+    getRecentAdditions: (): EarnerWithCertificate[] => {
+      return connection
+        .prepare<EarnerWithCertificate, []>(
+          `
+          SELECT * FROM earners_with_certificates
+          ORDER BY earner_created_at DESC
+          LIMIT 5
+          `,
+        )
+        .all();
+    },
+  },
   earners: {
     getAll: (): Earner[] => {
       return connection
@@ -156,8 +232,20 @@ export const db = {
       const stmt = connection.prepare<
         User,
         SQLQueryBindings | SQLQueryBindings[]
-      >(`SELECT * FROM users WHERE email = ?`);
+      >(`SELECT * FROM users WHERE email = ? AND deleted_at IS NULL`);
       return stmt.get(email);
+    },
+    updatePassword: (id: UserID, passwordHash: string) => {
+      connection
+        .prepare(
+          `
+          UPDATE users
+          SET password_hash = $passwordHash,
+              updated_at = datetime('now')
+          WHERE id = $id AND deleted_at IS NULL
+          `,
+        )
+        .run({ $id: id, $passwordHash: passwordHash });
     },
     insert: (data: InsertUserDTO): User => {
       const stmt = connection.prepare<

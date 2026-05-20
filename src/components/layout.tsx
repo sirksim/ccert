@@ -56,7 +56,9 @@ export default function Layout(props: LayoutProps) {
             </nav>
             <div>
               <a href="/profile">Profile</a>
-              <button type="button">Logout</button>
+              <form action="/api/v1/logout" method="post">
+                <button type="submit">Logout</button>
+              </form>
             </div>
           </div>
         </header>

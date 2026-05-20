@@ -11,6 +11,7 @@ import { earnerFormSchema } from "../schema/earners";
 import type { Certificate, Earner, EarnerID, UserID } from "@databases/types";
 import Login from "@pages/login";
 import { loginSchema } from "@schema/login";
+import { resetPasswordSchema } from "@schema/reset";
 import Reset from "@pages/reset";
 import History from "@pages/history";
 import Users from "@pages/users";
@@ -87,7 +88,13 @@ app.use(
   }),
 );
 app.use(async (c, next) => {
-  const publicPaths = new Set(["/login", "/api/v1/login"]);
+  const publicPaths = new Set([
+    "/login",
+    "/reset",
+    "/api/v1/login",
+    "/api/v1/logout",
+    "/api/v1/reset-password",
+  ]);
   const isPublicPath = publicPaths.has(c.req.path);
   const session = getCookie(c, "session");
 
@@ -129,14 +136,21 @@ app.use(async (c, next) => {
 
 app
   .get("/", (c) => {
-    const flash = deleteCookie(c, "flash", {
-      secure: true,
-      httpOnly: true,
-    });
-    console.log(flash);
-    return c.render(<Dashboard></Dashboard>, {
-      styles: ["dashboard"],
-    });
+    const stats = db.dashboard.getStats();
+    const expiringSoon = db.dashboard.getExpiringSoon();
+    const recentAdditions = db.dashboard.getRecentAdditions();
+
+    return c.render(
+      <Dashboard
+        stats={stats}
+        expiringSoon={expiringSoon}
+        recentAdditions={recentAdditions}
+      ></Dashboard>,
+      {
+        styles: ["dashboard"],
+        scripts: ["relative-time-element"],
+      },
+    );
   })
   .get("/profile", (c) => {
     return c.render(<Profile></Profile>, {
@@ -183,7 +197,10 @@ app
     });
   })
   .get("/reset", (c) => {
-    return c.render(<Reset></Reset>);
+    return c.render(<Reset></Reset>, {
+      styles: ["login"],
+      scripts: ["reset"],
+    });
   })
   .get("/api/v1/edit/user", (c) => {
     const id = Uint8Array.fromBase64(c.req.query("id")!);
@@ -239,8 +256,96 @@ app
       httpOnly: true,
     });
     db.users.updateLastLogin(user);
+    db.auditLogs.insert({
+      user_id: user.id,
+      action: "LOGIN",
+      entity_type: "user",
+      entity_id: user.id,
+      details: {
+        message: `${user.full_name} s'est connecté`,
+      },
+    });
     return c.json({ success: true });
   })
+  .post("/api/v1/logout", (c) => {
+    const session = getCookie(c, "session");
+
+    if (session !== undefined) {
+      try {
+        const userId = Uint8Array.fromBase64(session) as UserID;
+        const user = db.users.getByID(userId);
+
+        if (user !== null) {
+          db.auditLogs.insert({
+            user_id: userId,
+            action: "LOGOUT",
+            entity_type: "user",
+            entity_id: userId,
+            details: {
+              message: `${user.first_name} ${user.last_name} s'est déconnecté`,
+            },
+          });
+        }
+      } catch {
+        // Ignore malformed session cookies during logout.
+      }
+    }
+
+    deleteCookie(c, "session", {
+      secure: true,
+      httpOnly: true,
+    });
+    setCookie(c, "flash", "Vous êtes déconnecté.", {
+      secure: true,
+      httpOnly: true,
+    });
+
+    return c.redirect("/login");
+  })
+  .post(
+    "/api/v1/reset-password",
+    zValidator("form", resetPasswordSchema),
+    async (c) => {
+      const validated = c.req.valid("form");
+      const user = db.users.getByEmail(validated.email);
+
+      if (user === null) {
+        return c.json(
+          {
+            success: false,
+            error:
+              "Aucun utilisateur actif ne correspond à cette adresse email.",
+          },
+          404,
+        );
+      }
+
+      const passwordHash = await Bun.password.hash(validated.password, {
+        algorithm: "bcrypt",
+        cost: 15,
+      });
+
+      db.transaction(() => {
+        db.users.updatePassword(user.id, passwordHash);
+        db.auditLogs.insert({
+          user_id: user.id,
+          action: "UPDATE",
+          entity_type: "user",
+          entity_id: user.id,
+          details: {
+            message: `Mot de passe réinitialisé pour ${user.full_name}`,
+          },
+        });
+      });
+
+      deleteCookie(c, "session", {
+        secure: true,
+        httpOnly: true,
+      });
+
+      return c.json({ success: true });
+    },
+  )
   .post("/api/v1/users", zValidator("form", addUserSchema), async (c) => {
     const validated = c.req.valid("form");
     const user = db.users.getByEmail(validated.email);

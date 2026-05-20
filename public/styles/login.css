@@ -180,11 +180,21 @@ body:has(.login-page) > header {
 }
 
 .field-error,
+.field-help,
 .form-error {
   min-height: 1.1rem;
-  color: var(--login-error);
   font-size: 0.82rem;
   font-weight: 800;
+}
+
+.field-error,
+.form-error {
+  color: var(--login-error);
+}
+
+.field-help {
+  color: var(--login-muted);
+  line-height: 1.35;
 }
 
 .form-error:not(:empty) {
@@ -193,6 +203,12 @@ body:has(.login-page) > header {
   border: 1px solid var(--login-error);
   border-radius: 12px;
   padding: 0.75rem 0.9rem;
+}
+
+.form-error.form-success {
+  background: var(--login-surface-soft);
+  border-color: var(--base-color);
+  color: var(--base-color);
 }
 
 .login-submit {
@@ -226,6 +242,19 @@ body:has(.login-page) > header {
 .login-submit:disabled {
   cursor: wait;
   opacity: 0.72;
+}
+
+.form-link {
+  color: var(--base-color);
+  font-weight: 900;
+  text-align: center;
+  text-decoration: none;
+}
+
+.form-link:hover,
+.form-link:focus-visible {
+  color: var(--login-focus);
+  text-decoration: underline;
 }
 
 @media (max-width: 760px) {
